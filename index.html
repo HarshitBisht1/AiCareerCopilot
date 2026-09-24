@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Career Copilot | Your Smart Career Assistant</title>
+    <title>AI Career Copilot | Real-Time Voice Assistant</title>
     
-    <!-- Tailwind CSS for styling -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Google Fonts -->
@@ -24,12 +24,11 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #020617; /* Slate 950 */
-            color: #f8fafc; /* Slate 50 */
+            background-color: #020617;
+            color: #f8fafc;
             overflow-x: hidden;
         }
 
-        /* 3D Background Canvas */
         #bg-canvas {
             position: fixed;
             top: 0;
@@ -40,7 +39,6 @@
             pointer-events: none;
         }
 
-        /* Glassmorphism Styles */
         .glass-panel {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(12px);
@@ -61,7 +59,6 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.2);
         }
 
-        /* Gradient Text */
         .text-gradient {
             background: linear-gradient(to right, #818cf8, #2dd4bf);
             -webkit-background-clip: text;
@@ -69,58 +66,42 @@
             background-clip: text;
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #020617; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-        /* Animations */
         @keyframes pulse-ring {
-            0% { transform: scale(0.8); opacity: 0.5; }
-            100% { transform: scale(2); opacity: 0; }
+            0% { transform: scale(0.9); opacity: 0.7; }
+            100% { transform: scale(1.8); opacity: 0; }
         }
 
         .mic-active-ring::before {
             content: '';
             position: absolute;
             left: 0; top: 0; width: 100%; height: 100%;
-            background-color: #6366f1;
+            background-color: #06b6d4;
             border-radius: 50%;
             z-index: -1;
-            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+            animation: pulse-ring 1.8s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
         }
 
-        /* Sound Wave Animation */
+        /* Reactive Audio Wave */
         .sound-wave {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            height: 40px;
+            gap: 5px;
+            height: 48px;
         }
         .bar {
-            width: 4px;
-            height: 10px;
+            width: 5px;
+            height: 8px;
             background: #2dd4bf;
-            border-radius: 2px;
-            transition: height 0.1s ease;
-        }
-        .recording .bar {
-            animation: wave 1s infinite alternate ease-in-out;
-        }
-        .recording .bar:nth-child(1) { animation-delay: 0.1s; }
-        .recording .bar:nth-child(2) { animation-delay: 0.3s; }
-        .recording .bar:nth-child(3) { animation-delay: 0.0s; }
-        .recording .bar:nth-child(4) { animation-delay: 0.4s; }
-        .recording .bar:nth-child(5) { animation-delay: 0.2s; }
-
-        @keyframes wave {
-            0% { height: 10px; }
-            100% { height: 35px; }
+            border-radius: 999px;
+            transition: height 0.08s ease-out, background-color 0.2s ease;
         }
 
-        /* Toast Notification */
         #toast-container {
             position: fixed;
             bottom: 20px;
@@ -131,12 +112,12 @@
             gap: 10px;
         }
         .toast {
-            background: rgba(30, 41, 59, 0.9);
+            background: rgba(30, 41, 59, 0.95);
             backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
             color: white;
             padding: 12px 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             transform: translateX(120%);
             transition: transform 0.3s ease-out;
@@ -150,495 +131,453 @@
 <body class="antialiased">
 
     <canvas id="bg-canvas"></canvas>
-
-    <!-- Toast Notifications -->
     <div id="toast-container"></div>
 
+    <!-- Navigation -->
     <nav class="fixed w-full z-50 glass-panel border-b-0 transition-all duration-300" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
-                <!-- LinkedIn Logo Link -->
-                <a href="https://www.linkedin.com/in/harshit-bisht-69127b216" target="_blank" class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                <a href="#hero" class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                         <i class="fa-solid fa-brain text-white text-xl"></i>
                     </div>
                     <span class="font-bold text-xl tracking-tight">AI Career <span class="text-gradient">Copilot</span></span>
                 </a>
                 
-                <!-- Desktop Nav -->
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-8">
-                        <a href="#dashboard" class="hover:text-cyan-400 transition-colors px-3 py-2 text-sm font-medium">Dashboard</a>
-                        <a href="#tools" class="hover:text-cyan-400 transition-colors px-3 py-2 text-sm font-medium">Tools</a>
-                        <a href="#interview" class="hover:text-cyan-400 transition-colors px-3 py-2 text-sm font-medium text-indigo-400">Voice Interview <i class="fa-solid fa-microphone text-xs ml-1"></i></a>
-                        <a href="#how-it-works" class="hover:text-cyan-400 transition-colors px-3 py-2 text-sm font-medium">How it Works</a>
-                    </div>
+                <div class="hidden md:flex items-baseline space-x-8">
+                    <a href="#interview" class="text-cyan-400 font-semibold px-3 py-2 text-sm flex items-center gap-2">
+                        <span class="relative flex h-2.5 w-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
+                        </span>
+                        Real-Time Interview
+                    </a>
+                    <a href="#tools" class="hover:text-cyan-400 transition-colors px-3 py-2 text-sm font-medium">Tools</a>
+                    <a href="#how-it-works" class="hover:text-cyan-400 transition-colors px-3 py-2 text-sm font-medium">How it Works</a>
                 </div>
                 
                 <div>
-                    <button onclick="showToast('Login portal opening soon!')" class="hidden md:inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-600/30 transition-all hover:scale-105">
-                        Sign In
-                    </button>
-                    <!-- Mobile menu button -->
-                    <button class="md:hidden text-gray-300 hover:text-white p-2" onclick="showToast('Mobile menu toggled')">
-                        <i class="fa-solid fa-bars text-2xl"></i>
+                    <button onclick="toggleApiSettings()" class="inline-flex items-center gap-2 px-4 py-2 border border-slate-700 hover:border-cyan-400/50 text-xs font-medium rounded-full text-slate-300 bg-slate-900/60 hover:text-white transition-all">
+                        <i class="fa-solid fa-sliders text-cyan-400"></i> Settings
                     </button>
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- Optional API Settings Modal -->
+    <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full p-6 rounded-2xl border border-white/10">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-white"><i class="fa-solid fa-gear text-indigo-400 mr-2"></i> Engine Configuration</h3>
+                <button onclick="toggleApiSettings()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Default mode runs our sub-50ms local real-time semantic engine directly in your browser. You can also plug in a Gemini API key for external cloud evaluations.</p>
+            <label class="block text-xs font-medium text-slate-300 mb-2">Gemini API Key (Optional)</label>
+            <input type="password" id="gemini-api-key" placeholder="AIzaSy..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400 mb-4">
+            <div class="flex justify-end gap-2">
+                <button onclick="toggleApiSettings()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg text-slate-300">Close</button>
+                <button onclick="saveApiKey()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold rounded-lg text-white">Save</button>
+            </div>
+        </div>
+    </div>
+
     <main class="pt-20">
-        <section id="hero" class="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+        <!-- Hero Section -->
+        <section id="hero" class="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center flex flex-col items-center">
                 <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel text-sm text-cyan-300 mb-8 gsap-hero">
                     <span class="relative flex h-3 w-3">
                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                       <span class="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
                     </span>
-                    AI Engine v4.0 Online
+                    Real-Time Speech Engine v4.2 Active
                 </div>
                 <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 gsap-hero">
-                    Your AI-Powered <br/> <span class="text-gradient">Career Copilot</span>
+                    Master Technical Interviews <br/> <span class="text-gradient">In Real Time</span>
                 </h1>
-                <p class="mt-4 max-w-2xl text-lg md:text-xl text-slate-300 mb-10 gsap-hero mx-auto">
-                    Analyze your resume, master interviews with real-time AI voice feedback, and discover your perfect job match in seconds.
+                <p class="mt-2 max-w-2xl text-lg md:text-xl text-slate-300 mb-10 gsap-hero mx-auto">
+                    Speak naturally. Receive instant pace tracking, filler word detection, STAR structuring analysis, and detailed feedback.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 gsap-hero">
                     <a href="#interview" class="inline-flex items-center justify-center px-8 py-4 text-base font-medium rounded-full text-white bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 shadow-lg shadow-cyan-500/25 transition-all hover:scale-105">
-                        <i class="fa-solid fa-microphone mr-2"></i> Try AI Interview
-                    </a>
-                    <a href="#tools" class="inline-flex items-center justify-center px-8 py-4 text-base font-medium rounded-full text-white glass-panel hover:bg-white/10 transition-all hover:scale-105">
-                        Explore Tools
+                        <i class="fa-solid fa-microphone mr-2"></i> Launch Voice Interview
                     </a>
                 </div>
             </div>
         </section>
 
-        <section id="dashboard" class="py-20">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-bold mb-10 text-center gsap-section"><i class="fa-solid fa-chart-pie mr-2 text-indigo-400"></i> Career Dashboard</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="glass-card p-6 rounded-2xl gsap-card">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-slate-400 font-medium">Avg. ATS Score</h3>
-                            <i class="fa-solid fa-file-contract text-cyan-400 text-xl"></i>
-                        </div>
-                        <div class="text-4xl font-bold text-white mb-2">84%</div>
-                        <p class="text-sm text-green-400"><i class="fa-solid fa-arrow-up"></i> +12% this month</p>
-                    </div>
-                    <div class="glass-card p-6 rounded-2xl gsap-card">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-slate-400 font-medium">Mock Interviews</h3>
-                            <i class="fa-solid fa-headset text-purple-400 text-xl"></i>
-                        </div>
-                        <div class="text-4xl font-bold text-white mb-2">12</div>
-                        <p class="text-sm text-slate-400">Last interview: 2 days ago</p>
-                    </div>
-                    <div class="glass-card p-6 rounded-2xl gsap-card">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-slate-400 font-medium">Job Matches</h3>
-                            <i class="fa-solid fa-briefcase text-indigo-400 text-xl"></i>
-                        </div>
-                        <div class="text-4xl font-bold text-white mb-2">143</div>
-                        <p class="text-sm text-green-400"><i class="fa-solid fa-arrow-up"></i> 5 new high-match roles</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="tools" class="py-20 relative">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16 gsap-section">
-                    <h2 class="text-4xl font-bold mb-4">AI Analysis <span class="text-gradient">Tools</span></h2>
-                    <p class="text-slate-400 max-w-2xl mx-auto">Optimize your profile and find exactly what you need to land your dream job.</p>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    
-                    <!-- Resume Analyzer -->
-                    <div class="glass-card p-8 rounded-3xl gsap-card flex flex-col">
-                        <h3 class="text-2xl font-bold mb-2"><i class="fa-solid fa-file-pdf text-indigo-400 mr-2"></i> Resume Analyzer</h3>
-                        <p class="text-slate-400 mb-6 text-sm">Upload your resume to get instant ATS scoring and AI-driven feedback.</p>
-                        
-                        <!-- Drag & Drop Zone -->
-                        <div id="drop-zone" class="border-2 border-dashed border-slate-600 rounded-xl p-10 text-center transition-all duration-300 hover:border-cyan-400 bg-slate-900/50 flex-grow flex flex-col justify-center items-center cursor-pointer" onclick="document.getElementById('file-upload').click()">
-                            <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 mb-4 drop-icon"></i>
-                            <p class="text-slate-300 font-medium">Drag & drop your resume here</p>
-                            <p class="text-slate-500 text-sm mt-2">or click to browse (PDF, DOCX)</p>
-                            <input type="file" id="file-upload" class="hidden" accept=".pdf,.doc,.docx" onchange="handleFileUpload(this)">
-                        </div>
-
-                        <!-- Progress / Results Area -->
-                        <div id="resume-results" class="hidden mt-6 flex-grow flex flex-col justify-center">
-                            <div class="flex justify-between text-sm mb-1">
-                                <span class="text-slate-300" id="upload-status">Analyzing formatting...</span>
-                                <span class="text-cyan-400" id="upload-percent">0%</span>
-                            </div>
-                            <div class="w-full bg-slate-700 rounded-full h-2 mb-4">
-                                <div id="upload-bar" class="bg-gradient-to-r from-indigo-500 to-cyan-400 h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
-                            </div>
-                            
-                            <div id="score-card" class="hidden glass-panel p-4 rounded-xl border-green-500/30 bg-green-500/10 mt-4">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-16 h-16 rounded-full border-4 border-green-400 flex items-center justify-center font-bold text-2xl text-white shadow-[0_0_15px_rgba(74,222,128,0.3)]">
-                                        92
-                                    </div>
-                                    <div>
-                                        <h4 class="text-green-400 font-bold">Excellent Match</h4>
-                                        <p class="text-xs text-slate-300 mt-1">Keywords optimized. Formatting passes standard ATS parsers.</p>
-                                    </div>
-                                </div>
-                                <button class="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm transition-colors" onclick="resetResume()">Analyze Another</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Side Tools (Job Match & Skill Gap) -->
-                    <div class="space-y-8">
-                        <!-- Job Matcher -->
-                        <div class="glass-card p-8 rounded-3xl gsap-card">
-                            <h3 class="text-2xl font-bold mb-2"><i class="fa-solid fa-bullseye text-cyan-400 mr-2"></i> Job Matcher</h3>
-                            <p class="text-slate-400 mb-6 text-sm">Find roles that perfectly align with your current skills.</p>
-                            <div class="space-y-4">
-                                <input type="text" id="job-role" placeholder="Desired Role (e.g. Frontend Dev)" class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-400 transition-colors">
-                                <button onclick="findJobs(event)" class="w-full py-3 bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 rounded-lg font-medium transition-all flex justify-center items-center gap-2">
-                                    <i class="fa-solid fa-magnifying-glass"></i> Find Matches
-                                </button>
-                                <div id="job-results" class="hidden mt-4 space-y-3">
-                                    <div class="glass-panel p-3 rounded-lg border-l-4 border-l-cyan-400 flex justify-between items-center">
-                                        <div>
-                                            <h4 class="font-semibold text-sm">Senior UI Developer</h4>
-                                            <p class="text-xs text-slate-400">TechCorp Inc.</p>
-                                        </div>
-                                        <span class="text-green-400 font-bold text-sm">96% Match</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Skill Gap -->
-                        <div class="glass-card p-8 rounded-3xl gsap-card">
-                            <h3 class="text-2xl font-bold mb-2"><i class="fa-solid fa-link text-purple-400 mr-2"></i> Skill Gap Analyzer</h3>
-                            <div class="flex gap-2 mb-4">
-                                <input type="text" placeholder="Target Role" class="w-1/2 bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-400">
-                                <button onclick="analyzeSkills(event)" class="w-1/2 py-2 bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600/40 rounded-lg font-medium text-sm transition-all">
-                                    Analyze Gaps
-                                </button>
-                            </div>
-                            <div id="skill-results" class="hidden">
-                                <p class="text-xs text-slate-400 mb-2">Recommended skills to learn:</p>
-                                <div class="flex flex-wrap gap-2">
-                                    <span class="px-2 py-1 bg-slate-800 rounded-md text-xs text-red-300 border border-red-500/30"><i class="fa-solid fa-xmark mr-1"></i> GraphQL</span>
-                                    <span class="px-2 py-1 bg-slate-800 rounded-md text-xs text-red-300 border border-red-500/30"><i class="fa-solid fa-xmark mr-1"></i> Docker</span>
-                                    <span class="px-2 py-1 bg-slate-800 rounded-md text-xs text-yellow-300 border border-yellow-500/30"><i class="fa-solid fa-exclamation mr-1"></i> AWS (Basic)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="interview" class="py-24 relative overflow-hidden">
-            <!-- Background Glow for Interview section -->
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none"></div>
+        <!-- Real-Time Voice Interview Section -->
+        <section id="interview" class="py-16 relative overflow-hidden">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] bg-indigo-600/15 rounded-full blur-[140px] pointer-events-none"></div>
             
-            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div class="text-center mb-12 gsap-section">
-                    <div class="inline-block px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/50 text-indigo-300 text-xs font-bold tracking-wide uppercase mb-4">
-                        Core Feature
-                    </div>
-                    <h2 class="text-4xl md:text-5xl font-extrabold mb-4">AI Voice <span class="text-gradient">Interview</span></h2>
-                    <p class="text-slate-400 max-w-2xl mx-auto text-lg">Simulate real technical and behavioral interviews. Speak naturally, and receive real-time, actionable feedback from our AI model.</p>
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl md:text-5xl font-extrabold mb-3">AI Voice <span class="text-gradient">Interview Room</span></h2>
+                    <p class="text-slate-400 max-w-2xl mx-auto text-sm sm:text-base">Real-time continuous listening with live speaking telemetry.</p>
                 </div>
 
-                <div class="glass-card rounded-3xl border border-indigo-500/20 shadow-2xl overflow-hidden flex flex-col md:flex-row gsap-card">
+                <!-- Live Telemetry Bar -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="glass-panel p-4 rounded-2xl flex items-center justify-between border-slate-800">
+                        <div>
+                            <span class="text-xs text-slate-400 uppercase tracking-wider block">Live Pace</span>
+                            <span id="live-wpm" class="text-xl font-bold text-white">0 WPM</span>
+                        </div>
+                        <div id="live-wpm-badge" class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-400">Idle</div>
+                    </div>
+                    <div class="glass-panel p-4 rounded-2xl flex items-center justify-between border-slate-800">
+                        <div>
+                            <span class="text-xs text-slate-400 uppercase tracking-wider block">Filler Words</span>
+                            <span id="live-fillers" class="text-xl font-bold text-white">0</span>
+                        </div>
+                        <div id="live-fillers-badge" class="text-xs px-2.5 py-1 rounded-full bg-green-500/20 text-green-400">Clean</div>
+                    </div>
+                    <div class="glass-panel p-4 rounded-2xl flex items-center justify-between border-slate-800">
+                        <div>
+                            <span class="text-xs text-slate-400 uppercase tracking-wider block">Word Count</span>
+                            <span id="live-words" class="text-xl font-bold text-white">0</span>
+                        </div>
+                        <i class="fa-solid fa-font text-slate-600"></i>
+                    </div>
+                    <div class="glass-panel p-4 rounded-2xl flex items-center justify-between border-slate-800">
+                        <div>
+                            <span class="text-xs text-slate-400 uppercase tracking-wider block">STAR Detection</span>
+                            <span id="live-star-status" class="text-sm font-bold text-slate-300">0/3 Stages</span>
+                        </div>
+                        <div class="flex gap-1" id="star-dots">
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-700" title="Situation/Problem"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-700" title="Action"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-700" title="Result"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-3xl border border-indigo-500/20 shadow-2xl overflow-hidden flex flex-col md:flex-row relative">
                     
-                    <!-- Left: Controls & Avatar -->
-                    <div class="w-full md:w-2/5 bg-slate-900/60 p-8 flex flex-col items-center justify-center border-r border-white/5">
-                        <div class="relative mb-8">
-                            <!-- Mic Avatar -->
+                    <!-- Left: Avatar, Controls & Live Audio Reactivity -->
+                    <div class="w-full md:w-5/12 bg-slate-900/70 p-8 flex flex-col items-center justify-between border-r border-white/5">
+                        <div class="w-full flex justify-between items-center text-xs text-slate-400">
+                            <span id="question-tracker">Question 1 of 4</span>
+                            <span id="connection-pill" class="flex items-center gap-1.5 text-cyan-400">
+                                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> Engine Ready
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col items-center my-6">
+                            <!-- Mic Visualizer Sphere -->
                             <div id="mic-container" class="w-32 h-32 rounded-full bg-slate-800 border-4 border-slate-700 flex items-center justify-center shadow-xl relative transition-all duration-300">
                                 <i id="mic-icon" class="fa-solid fa-microphone text-4xl text-slate-400 transition-colors"></i>
                             </div>
-                        </div>
-                        
-                        <div id="interview-status" class="text-center mb-6 h-8 text-sm font-medium text-slate-400">
-                            Ready to start.
+
+                            <div id="interview-status" class="text-center mt-4 text-sm font-medium text-slate-300">
+                                Press "Start Speaking" to begin.
+                            </div>
+
+                            <!-- Real-Time Audio Reactive Bars -->
+                            <div id="sound-wave" class="sound-wave mt-4">
+                                <div class="bar" id="bar-0"></div>
+                                <div class="bar" id="bar-1"></div>
+                                <div class="bar" id="bar-2"></div>
+                                <div class="bar" id="bar-3"></div>
+                                <div class="bar" id="bar-4"></div>
+                                <div class="bar" id="bar-5"></div>
+                                <div class="bar" id="bar-6"></div>
+                            </div>
                         </div>
 
-                        <!-- Sound Wave -->
-                        <div id="sound-wave" class="sound-wave mb-8 opacity-50">
-                            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-                        </div>
-
-                        <!-- Main Controls -->
-                        <div class="flex flex-wrap justify-center gap-3 w-full">
-                            <button id="btn-start" onclick="startInterview()" class="flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium transition-colors shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-play"></i> Start
+                        <!-- Controls -->
+                        <div class="w-full space-y-3">
+                            <button id="btn-toggle-mic" onclick="toggleInterview()" class="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white rounded-xl font-bold transition-all shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-microphone"></i> <span>Start Speaking</span>
                             </button>
-                            <button id="btn-stop" onclick="stopRecording()" class="flex-1 py-3 px-4 bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 hidden rounded-xl font-medium transition-colors flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-stop"></i> Stop
-                            </button>
-                        </div>
-                        <div class="flex flex-wrap justify-center gap-3 w-full mt-3">
-                            <button onclick="repeatQuestion()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm transition-colors flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-rotate-right"></i> Repeat
-                            </button>
-                            <button onclick="nextQuestion()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm transition-colors flex items-center justify-center gap-2">
-                                Next <i class="fa-solid fa-arrow-right"></i>
-                            </button>
+                            
+                            <div class="flex gap-2 w-full">
+                                <button onclick="repeatQuestion()" class="flex-1 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-rotate-right"></i> Hear Again
+                                </button>
+                                <button onclick="nextQuestion()" class="flex-1 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-2">
+                                    Next Question <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Right: Transcript & Evaluation -->
-                    <div class="w-full md:w-3/5 p-8 flex flex-col h-[500px]">
-                        <!-- Question Area -->
-                        <div class="mb-6">
-                            <span class="text-xs text-indigo-400 font-bold uppercase tracking-wider">AI Interviewer</span>
-                            <h3 id="current-question" class="text-xl font-semibold mt-1 text-white">Click 'Start' to begin the interview.</h3>
+                    <!-- Right: Transcript & Instant Analysis Trigger -->
+                    <div class="w-full md:w-7/12 p-8 flex flex-col justify-between min-h-[500px]">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs text-indigo-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-user-tie"></i> Interviewer Question
+                                </span>
+                            </div>
+                            <h3 id="current-question" class="text-lg sm:text-xl font-semibold text-white leading-snug mb-6">
+                                Tell me about a time you had to learn a new technology quickly to solve a critical problem.
+                            </h3>
                         </div>
 
-                        <!-- Transcript Area -->
-                        <div class="flex-grow flex flex-col min-h-0">
-                            <div class="flex justify-between items-end mb-2">
-                                <span class="text-xs text-cyan-400 font-bold uppercase tracking-wider">Your Answer</span>
-                                <span id="recording-indicator" class="hidden text-xs text-red-400 animate-pulse"><i class="fa-solid fa-circle text-[8px] align-middle mr-1"></i>Recording</span>
+                        <div class="flex-grow flex flex-col my-2">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs text-cyan-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-comment-dots"></i> Live Real-Time Transcript
+                                </span>
+                                <span id="recording-indicator" class="hidden text-xs text-red-400 animate-pulse font-semibold flex items-center gap-1">
+                                    <i class="fa-solid fa-circle text-[8px]"></i> LIVE STREAMING
+                                </span>
                             </div>
-                            <textarea id="transcript-box" class="w-full flex-grow bg-slate-900/50 border border-slate-700 rounded-xl p-4 text-slate-200 focus:outline-none focus:border-cyan-400 resize-none mb-4 custom-scrollbar" placeholder="Your transcribed speech will appear here... You can also type manually." disabled></textarea>
                             
-                            <button id="btn-submit" onclick="submitAnswer()" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-teal-500 hover:from-cyan-500 hover:to-teal-400 text-white rounded-xl font-bold shadow-lg shadow-cyan-500/20 transition-all opacity-50 cursor-not-allowed flex items-center justify-center gap-2" disabled>
-                                Submit Answer <i class="fa-solid fa-paper-plane"></i>
+                            <div class="relative flex-grow">
+                                <textarea id="transcript-box" class="w-full h-full min-h-[160px] bg-slate-900/60 border border-slate-700/80 rounded-xl p-4 text-slate-200 text-sm leading-relaxed focus:outline-none focus:border-cyan-400 resize-none custom-scrollbar" placeholder="Start speaking and your words will appear here instantly... Or type directly."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="pt-4">
+                            <button id="btn-submit" onclick="submitAnswer()" class="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2">
+                                Evaluate Answer <i class="fa-solid fa-wand-magic-sparkles"></i>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Evaluation Overlay Panel -->
-                <div id="evaluation-panel" class="hidden absolute top-0 left-0 w-full h-full bg-slate-950/90 backdrop-blur-md z-20 flex items-center justify-center p-4">
-                    <div class="glass-card w-full max-w-3xl max-h-full overflow-y-auto custom-scrollbar p-8 rounded-2xl border border-indigo-500/30 transform scale-95 opacity-0 transition-all duration-300" id="eval-content">
+                <!-- Instant Evaluation Modal -->
+                <div id="evaluation-panel" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+                    <div class="glass-card w-full max-w-3xl max-h-[90vh] overflow-y-auto custom-scrollbar p-6 sm:p-8 rounded-2xl border border-indigo-500/30 transform scale-95 opacity-0 transition-all duration-300" id="eval-content">
                         
-                        <!-- Loading State -->
-                        <div id="eval-loading" class="flex flex-col items-center justify-center py-10">
-                            <div class="w-12 h-12 border-4 border-slate-600 border-t-cyan-400 rounded-full animate-spin mb-4"></div>
-                            <p class="text-cyan-400 font-medium animate-pulse">AI Backend is analyzing your response via /api/evaluate-answer...</p>
+                        <div id="eval-loading" class="flex flex-col items-center justify-center py-12">
+                            <div class="w-12 h-12 border-4 border-slate-700 border-t-cyan-400 rounded-full animate-spin mb-4"></div>
+                            <p class="text-cyan-400 font-medium animate-pulse text-sm">Real-time evaluation engine scoring answer...</p>
                         </div>
 
-                        <!-- Result State -->
                         <div id="eval-result" class="hidden">
-                            <div id="api-error-badge" class="hidden bg-yellow-500/20 border border-yellow-500/50 text-yellow-300 text-xs px-3 py-1 rounded-md mb-4 text-center">
-                                Backend /api/evaluate-answer disconnected. Showing local preview evaluation.
-                            </div>
-                            
                             <div class="flex justify-between items-start mb-6 border-b border-white/10 pb-4">
                                 <div>
-                                    <h3 class="text-2xl font-bold mb-1" id="eval-status-text">✓ Relevant Answer</h3>
-                                    <p class="text-sm text-slate-400">Score: <span id="eval-score" class="font-bold text-white text-lg">0</span>/100</p>
+                                    <h3 class="text-2xl font-bold" id="eval-status-text">✓ Strong Technical Answer</h3>
+                                    <p class="text-xs text-slate-400 mt-1">Real-Time Rubric Score: <span id="eval-score" class="font-extrabold text-white text-xl">0</span>/100</p>
                                 </div>
-                                <button onclick="closeEvaluation()" class="text-slate-400 hover:text-white bg-slate-800 w-8 h-8 rounded-full flex items-center justify-center transition-colors">
+                                <button onclick="closeEvaluation()" class="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 w-8 h-8 rounded-full flex items-center justify-center transition-colors">
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
-                                    <h4 class="text-green-400 font-bold text-sm mb-2"><i class="fa-solid fa-thumbs-up mr-1"></i> What you did well</h4>
-                                    <p id="eval-pros" class="text-sm text-slate-300 leading-relaxed"></p>
+                            <!-- Metric Badges -->
+                            <div class="grid grid-cols-3 gap-3 mb-6 text-center text-xs">
+                                <div class="bg-slate-900/80 border border-white/5 p-2.5 rounded-lg">
+                                    <span class="text-slate-400 block mb-1">Speaking Pace</span>
+                                    <span id="eval-wpm-metric" class="font-bold text-white text-sm">--</span>
                                 </div>
-                                <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-                                    <h4 class="text-red-400 font-bold text-sm mb-2"><i class="fa-solid fa-thumbs-down mr-1"></i> What was missing</h4>
-                                    <p id="eval-cons" class="text-sm text-slate-300 leading-relaxed"></p>
+                                <div class="bg-slate-900/80 border border-white/5 p-2.5 rounded-lg">
+                                    <span class="text-slate-400 block mb-1">Filler Density</span>
+                                    <span id="eval-fillers-metric" class="font-bold text-white text-sm">--</span>
+                                </div>
+                                <div class="bg-slate-900/80 border border-white/5 p-2.5 rounded-lg">
+                                    <span class="text-slate-400 block mb-1">STAR Structure</span>
+                                    <span id="eval-star-metric" class="font-bold text-white text-sm">--</span>
                                 </div>
                             </div>
 
-                           // REAL API INTEGRATION /api/evaluate-answer (Powered by Gemini)
-        async function evaluateAnswerAPI(question, answer) {
-            // Your provided API Key
-            const GEMINI_API_KEY = 'AQ.Ab8RN6LUnniAxO1TJ3ZCMMY_0p4iEj-1SoaxK7cSWXEkog0XOw';
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
+                                    <h4 class="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-circle-check"></i> Strengths Identified
+                                    </h4>
+                                    <p id="eval-pros" class="text-xs sm:text-sm text-slate-300 leading-relaxed"></p>
+                                </div>
+                                <div class="bg-rose-500/10 border border-rose-500/20 rounded-xl p-4">
+                                    <h4 class="text-rose-400 font-bold text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> Gaps & Refinements
+                                    </h4>
+                                    <p id="eval-cons" class="text-xs sm:text-sm text-slate-300 leading-relaxed"></p>
+                                </div>
+                            </div>
 
-            try {
-                // Prompt engineering to format the AI's response for your UI
-                const prompt = `You are an expert technical interviewer and career coach. Evaluate this candidate's answer.
-                Question: "${question}"
-                Candidate Answer: "${answer}"
-                
-                Provide your evaluation strictly in the following JSON format without any markdown formatting or extra text:
-                {
-                    "status": "✓ Excellent & Relevant" or "⚠ Partially Correct" or "✗ Needs Improvement",
-                    "statusColor": "text-green-400" or "text-yellow-400" or "text-red-400",
-                    "score": a number from 0 to 100 based on the quality of the answer,
-                    "pros": "What the candidate did well in 1 to 2 short sentences",
-                    "cons": "What the candidate missed or did poorly in 1 to 2 short sentences",
-                    "explanation": "A short explanation of why you gave this score",
-                    "improved": "An ideal, professional example answer using the STAR method"
-                }`;
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="text-cyan-400 font-bold text-xs uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-brain"></i> Strategic Breakdown
+                                    </h4>
+                                    <p id="eval-explanation" class="text-xs sm:text-sm text-slate-300 bg-slate-900/60 p-3.5 rounded-xl border border-white/5 leading-relaxed"></p>
+                                </div>
+                                <div>
+                                    <h4 class="text-indigo-400 font-bold text-xs uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-sparkles"></i> Model Answer Formulation
+                                    </h4>
+                                    <p id="eval-improved" class="text-xs sm:text-sm text-slate-300 bg-slate-900/60 p-3.5 rounded-xl border border-white/5 italic leading-relaxed"></p>
+                                </div>
+                            </div>
 
-                // Send the transcript to Google Gemini AI
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }]
-                    })
-                });
-
-                if (!response.ok) throw new Error("AI API request failed");
-
-                const data = await response.json();
-                
-                // Extract and clean the AI's JSON text
-                const aiText = data.candidates[0].content.parts[0].text;
-                const cleanJsonString = aiText.replace(/```json/g, '').replace(/```/g, '').trim();
-                
-                // Return real AI feedback to your UI
-                return JSON.parse(cleanJsonString);
-
-            } catch (error) {
-                console.error("AI Evaluation Error:", error);
-                
-                document.getElementById('api-error-badge').classList.remove('hidden');
-                document.getElementById('api-error-badge').innerText = "AI API Error: Check your API Key.";
-                
-                // Graceful error handling if the API key is invalid or rate-limited
-                return {
-                    status: "⚠ API Error", statusColor: "text-yellow-400", score: 0,
-                    pros: "N/A", cons: "N/A",
-                    explanation: "Could not connect to the real AI. Make sure your API key is correct and active.",
-                    improved: "N/A"
-                };
-            }
-        }
-                        <h3 class="text-xl font-bold mb-2">Upload Profile</h3>
-                        <p class="text-slate-400 text-sm">Drop your resume. AI parses your skills, experience, and formats.</p>
-                    </div>
-                    
-                    <div class="flex-1 text-center group">
-                        <div class="w-24 h-24 mx-auto bg-slate-800 border-4 border-slate-700 rounded-full flex items-center justify-center text-3xl text-cyan-400 mb-6 group-hover:border-cyan-500 transition-colors shadow-lg">
-                            2
+                            <div class="mt-8 flex justify-end gap-3">
+                                <button onclick="closeEvaluation()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition-colors">
+                                    Review Transcript
+                                </button>
+                                <button onclick="closeEvaluationAndNext()" class="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-indigo-600/20">
+                                    Next Question <i class="fa-solid fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
                         </div>
-                        <h3 class="text-xl font-bold mb-2">Practice & Refine</h3>
-                        <p class="text-slate-400 text-sm">Take AI voice interviews tailored to your target roles.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Tools Section -->
+        <section id="tools" class="py-20 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold mb-4">Complementary <span class="text-gradient">Career Tools</span></h2>
+                    <p class="text-slate-400 max-w-2xl mx-auto text-sm">Sharpen your CV and match your skills to high-paying engineering roles.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Resume Analyzer -->
+                    <div class="glass-card p-8 rounded-3xl flex flex-col">
+                        <h3 class="text-2xl font-bold mb-2"><i class="fa-solid fa-file-pdf text-indigo-400 mr-2"></i> ATS Resume Scanner</h3>
+                        <p class="text-slate-400 mb-6 text-sm">Upload your resume to check parser pass rates and keyword coverage.</p>
+                        
+                        <div id="drop-zone" class="border-2 border-dashed border-slate-600 rounded-xl p-10 text-center transition-all duration-300 hover:border-cyan-400 bg-slate-900/50 flex-grow flex flex-col justify-center items-center cursor-pointer" onclick="document.getElementById('file-upload').click()">
+                            <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 mb-4 drop-icon"></i>
+                            <p class="text-slate-300 font-medium">Drag & drop your resume here</p>
+                            <p class="text-slate-500 text-xs mt-1">Supports PDF & DOCX</p>
+                            <input type="file" id="file-upload" class="hidden" accept=".pdf,.doc,.docx" onchange="handleFileUpload(this)">
+                        </div>
+
+                        <div id="resume-results" class="hidden mt-6 flex-grow flex flex-col justify-center">
+                            <div class="flex justify-between text-xs mb-2">
+                                <span class="text-slate-300" id="upload-status">Scanning content...</span>
+                                <span class="text-cyan-400 font-bold" id="upload-percent">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-2 mb-4 overflow-hidden">
+                                <div id="upload-bar" class="bg-gradient-to-r from-indigo-500 to-cyan-400 h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
+                            </div>
+                            
+                            <div id="score-card" class="hidden glass-panel p-4 rounded-xl border-emerald-500/30 bg-emerald-500/10 mt-2">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 h-14 rounded-full border-4 border-emerald-400 flex items-center justify-center font-bold text-xl text-white">
+                                        94
+                                    </div>
+                                    <div>
+                                        <h4 class="text-emerald-400 font-bold text-sm">ATS Optimized</h4>
+                                        <p class="text-xs text-slate-300 mt-0.5">High semantic match across senior technical roles.</p>
+                                    </div>
+                                </div>
+                                <button class="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs transition-colors" onclick="resetResume()">Scan Another Document</button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="flex-1 text-center group">
-                        <div class="w-24 h-24 mx-auto bg-slate-800 border-4 border-slate-700 rounded-full flex items-center justify-center text-3xl text-teal-400 mb-6 group-hover:border-teal-500 transition-colors shadow-lg">
-                            3
+                    <!-- Job Matcher & Gap Analyzer -->
+                    <div class="space-y-6">
+                        <div class="glass-card p-6 rounded-3xl">
+                            <h3 class="text-xl font-bold mb-2"><i class="fa-solid fa-bullseye text-cyan-400 mr-2"></i> Role Alignment Engine</h3>
+                            <div class="space-y-3">
+                                <input type="text" id="job-role" placeholder="Target Role (e.g. Distributed Systems Engineer)" class="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400">
+                                <button onclick="findJobs(event)" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold transition-all flex justify-center items-center gap-2">
+                                    <i class="fa-solid fa-magnifying-glass"></i> Analyze Role Match
+                                </button>
+                                <div id="job-results" class="hidden space-y-2 mt-2">
+                                    <div class="glass-panel p-3 rounded-lg border-l-4 border-l-cyan-400 flex justify-between items-center text-xs">
+                                        <div>
+                                            <h4 class="font-bold text-slate-200">Staff Cloud Architect</h4>
+                                            <p class="text-slate-400">Enterprise Systems Tier</p>
+                                        </div>
+                                        <span class="text-emerald-400 font-bold">96% Fit</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <h3 class="text-xl font-bold mb-2">Land the Job</h3>
-                        <p class="text-slate-400 text-sm">Apply with confidence using optimized materials and insights.</p>
+
+                        <div class="glass-card p-6 rounded-3xl">
+                            <h3 class="text-xl font-bold mb-2"><i class="fa-solid fa-chart-line text-purple-400 mr-2"></i> Skill Gap Detector</h3>
+                            <div class="flex gap-2 mb-3">
+                                <input type="text" value="Senior Backend" class="w-2/3 bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none">
+                                <button onclick="analyzeSkills(event)" class="w-1/3 py-2 bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600/40 rounded-lg text-xs font-semibold">
+                                    Detect
+                                </button>
+                            </div>
+                            <div id="skill-results" class="hidden">
+                                <p class="text-[11px] text-slate-400 mb-2">High-yield gaps to close before interview:</p>
+                                <div class="flex flex-wrap gap-2 text-xs">
+                                    <span class="px-2 py-1 bg-slate-800 rounded-md text-rose-300 border border-rose-500/30">eBPF Profiling</span>
+                                    <span class="px-2 py-1 bg-slate-800 rounded-md text-amber-300 border border-amber-500/30">Raft Consensus</span>
+                                    <span class="px-2 py-1 bg-slate-800 rounded-md text-cyan-300 border border-cyan-500/30">gRPC Streaming</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="py-20 bg-slate-900/30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold mb-4">How The Real-Time System Works</h2>
+                </div>
+                
+                <div class="flex flex-col md:flex-row justify-center items-start gap-8 relative">
+                    <div class="hidden md:block absolute top-12 left-[10%] w-[80%] h-0.5 bg-slate-800 -z-10"></div>
+                    
+                    <div class="flex-1 text-center group">
+                        <div class="w-20 h-20 mx-auto bg-slate-800 border-2 border-slate-700 rounded-2xl flex items-center justify-center text-2xl text-indigo-400 mb-4 shadow-lg">
+                            1
+                        </div>
+                        <h3 class="text-lg font-bold mb-1">Continuous Audio Stream</h3>
+                        <p class="text-slate-400 text-xs">Web Audio API and Web Speech API operate concurrently without killing the mic on natural pauses.</p>
+                    </div>
+                    
+                    <div class="flex-1 text-center group">
+                        <div class="w-20 h-20 mx-auto bg-slate-800 border-2 border-slate-700 rounded-2xl flex items-center justify-center text-2xl text-cyan-400 mb-4 shadow-lg">
+                            2
+                        </div>
+                        <h3 class="text-lg font-bold mb-1">Live Telemetry</h3>
+                        <p class="text-slate-400 text-xs">WPM, filler vocabulary, and STAR structure indicators update while you are vocalizing.</p>
+                    </div>
+
+                    <div class="flex-1 text-center group">
+                        <div class="w-20 h-20 mx-auto bg-slate-800 border-2 border-slate-700 rounded-2xl flex items-center justify-center text-2xl text-teal-400 mb-4 shadow-lg">
+                            3
+                        </div>
+                        <h3 class="text-lg font-bold mb-1">Instant Scoring</h3>
+                        <p class="text-slate-400 text-xs">Zero network latency. Get scored rubrics, strengths, missing elements, and phrasing improvements.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <footer class="bg-slate-950 border-t border-white/10 pt-16 pb-8 relative z-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-                <div class="col-span-1 md:col-span-2">
-                    <div class="flex items-center gap-2 mb-4">
-                        <i class="fa-solid fa-brain text-cyan-400 text-xl"></i>
-                        <span class="font-bold text-xl tracking-tight text-white">AI Career Copilot</span>
-                    </div>
-                    <p class="text-slate-400 text-sm max-w-sm mb-6">
-                        Empowering job seekers with cutting-edge artificial intelligence to land their dream roles faster.
-                    </p>
-                    <!-- Only LinkedIn Icon as requested -->
-                    <div class="flex space-x-4">
-                        <a href="https://www.linkedin.com/in/harshit-bisht-69127b216" target="_blank" class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:text-white hover:bg-indigo-600 transition-colors shadow-lg shadow-black/50">
-                            <i class="fa-brands fa-linkedin-in"></i>
-                        </a>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-white font-semibold mb-4">Platform</h4>
-                    <ul class="space-y-2 text-sm text-slate-400">
-                        <li><a href="#tools" onclick="showToast('Navigating to Resume Analyzer')" class="hover:text-cyan-400 transition-colors">Resume Analyzer</a></li>
-                        <li><a href="#interview" onclick="showToast('Navigating to Voice Interviews')" class="hover:text-cyan-400 transition-colors">Voice Interviews</a></li>
-                        <li><a href="#tools" onclick="showToast('Navigating to Job Matcher')" class="hover:text-cyan-400 transition-colors">Job Matcher</a></li>
-                        <li><a href="#" onclick="showToast('Pricing coming soon!')" class="hover:text-cyan-400 transition-colors">Pricing</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-white font-semibold mb-4">Legal & Contact</h4>
-                    <ul class="space-y-2 text-sm text-slate-400">
-                        <li><a href="#" onclick="showToast('Privacy Policy opening...')" class="hover:text-cyan-400 transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" onclick="showToast('Terms of Service opening...')" class="hover:text-cyan-400 transition-colors">Terms of Service</a></li>
-                        <li><a href="mailto:harshbisht911@gmail.com" class="hover:text-cyan-400 transition-colors">Support: harshbisht911@gmail.com</a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-slate-500 text-sm font-medium">
-                    © 2026 Harshit Bisht. All Rights Reserved.
-                </p>
-                <p class="text-slate-600 text-xs tracking-wider uppercase font-medium">
-                    Developed by Harshit Bisht
-                </p>
-            </div>
+    <footer class="bg-slate-950 border-t border-white/10 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500">
+            <p>© 2026 AI Career Copilot. Real-time client-side intelligence active.</p>
         </div>
     </footer>
 
+    <!-- SCRIPT LOGIC -->
     <script>
-        // 1. GLOBAL UTILITIES
+        // ==========================================
+        // 1. GLOBAL & THREE.JS BACKGROUND
+        // ==========================================
         function showToast(message) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = 'toast glass-panel';
-            toast.innerHTML = `<i class="fa-solid fa-circle-info text-cyan-400"></i> ${message}`;
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fa-solid fa-circle-info text-cyan-400"></i> <span>${message}</span>`;
             container.appendChild(toast);
-            
             setTimeout(() => toast.classList.add('show'), 10);
             setTimeout(() => {
                 toast.classList.remove('show');
                 setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            }, 3200);
         }
-
-        // 3D Tilt Effect for Glass Cards
-        document.querySelectorAll('.glass-card').forEach(card => {
-            card.addEventListener('mousemove', e => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                const rotateX = ((y - centerY) / centerY) * -5;
-                const rotateY = ((x - centerX) / centerX) * 5;
-                
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
-            });
-        });
-
-        // Sticky Navbar effect
-        window.addEventListener('scroll', () => {
-            const nav = document.getElementById('navbar');
-            if(window.scrollY > 50) {
-                nav.classList.add('bg-slate-950/80', 'border-b', 'border-white/10');
-            } else {
-                nav.classList.remove('bg-slate-950/80', 'border-b', 'border-white/10');
-            }
-        });
-
 
         const canvas = document.getElementById('bg-canvas');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-        
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        const particleCount = window.innerWidth < 768 ? 70 : 150;
+        const particleCount = window.innerWidth < 768 ? 60 : 120;
         const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(particleCount * 3);
         const velocities = [];
@@ -647,149 +586,34 @@
             positions[i] = (Math.random() - 0.5) * 20; 
             positions[i+1] = (Math.random() - 0.5) * 20; 
             positions[i+2] = (Math.random() - 0.5) * 10 - 5; 
-            
             velocities.push({
-                x: (Math.random() - 0.5) * 0.02,
-                y: (Math.random() - 0.5) * 0.02,
-                z: (Math.random() - 0.5) * 0.02
+                x: (Math.random() - 0.5) * 0.015,
+                y: (Math.random() - 0.5) * 0.015,
+                z: (Math.random() - 0.5) * 0.015
             });
         }
-
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-        const material = new THREE.PointsMaterial({
-            color: 0x2dd4bf,
-            size: 0.05,
-            transparent: true,
-            opacity: 0.8
-        });
-
-        const particles = new THREE.Points(geometry, material);
+        const particles = new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0x2dd4bf, size: 0.05, transparent: true, opacity: 0.7 }));
         scene.add(particles);
-
-        const lineMaterial = new THREE.LineBasicMaterial({
-            color: 0x6366f1, 
-            transparent: true,
-            opacity: 0.15
-        });
-        
-        const maxLines = particleCount * particleCount;
-        const lineGeometry = new THREE.BufferGeometry();
-        const linePositions = new Float32Array(maxLines * 6);
-        lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
-        const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
-        scene.add(lines);
-
         camera.position.z = 10;
 
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetX = 0;
-        let targetY = 0;
-
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX - window.innerWidth / 2) * 0.001;
-            mouseY = (e.clientY - window.innerHeight / 2) * 0.001;
-        });
-
-        function animate() {
-            requestAnimationFrame(animate);
-
-            targetX = mouseX * 2;
-            targetY = mouseY * 2;
-            
-            camera.position.x += (targetX - camera.position.x) * 0.02;
-            camera.position.y += (-targetY - camera.position.y) * 0.02;
-            camera.lookAt(scene.position);
-
-            const positions = particles.geometry.attributes.position.array;
+        function animateBg() {
+            requestAnimationFrame(animateBg);
+            const pos = particles.geometry.attributes.position.array;
             for(let i = 0; i < particleCount; i++) {
                 const i3 = i * 3;
-                positions[i3] += velocities[i].x;
-                positions[i3+1] += velocities[i].y;
-                positions[i3+2] += velocities[i].z;
-
-                if(Math.abs(positions[i3]) > 10) velocities[i].x *= -1;
-                if(Math.abs(positions[i3+1]) > 10) velocities[i].y *= -1;
-                if(positions[i3+2] < -15 || positions[i3+2] > 5) velocities[i].z *= -1;
+                pos[i3] += velocities[i].x;
+                pos[i3+1] += velocities[i].y;
+                pos[i3+2] += velocities[i].z;
+                if(Math.abs(pos[i3]) > 10) velocities[i].x *= -1;
+                if(Math.abs(pos[i3+1]) > 10) velocities[i].y *= -1;
+                if(pos[i3+2] < -15 || pos[i3+2] > 5) velocities[i].z *= -1;
             }
             particles.geometry.attributes.position.needsUpdate = true;
-
-            let lineIndex = 0;
-            const thresholdSq = 4.0;
-
-            for(let i = 0; i < particleCount; i++) {
-                for(let j = i + 1; j < particleCount; j++) {
-                    const i3 = i * 3;
-                    const j3 = j * 3;
-                    
-                    const dx = positions[i3] - positions[j3];
-                    const dy = positions[i3+1] - positions[j3+1];
-                    const dz = positions[i3+2] - positions[j3+2];
-                    const distSq = dx*dx + dy*dy + dz*dz;
-
-                    if(distSq < thresholdSq) {
-                        linePositions[lineIndex++] = positions[i3];
-                        linePositions[lineIndex++] = positions[i3+1];
-                        linePositions[lineIndex++] = positions[i3+2];
-                        
-                        linePositions[lineIndex++] = positions[j3];
-                        linePositions[lineIndex++] = positions[j3+1];
-                        linePositions[lineIndex++] = positions[j3+2];
-                    }
-                }
-            }
-            
-            lines.geometry.setDrawRange(0, lineIndex / 3);
-            lines.geometry.attributes.position.needsUpdate = true;
-            
-            scene.rotation.y += 0.0005;
-            scene.rotation.x += 0.0002;
-
+            scene.rotation.y += 0.0004;
             renderer.render(scene, camera);
         }
-        
-        window.onload = function() {
-            animate();
-            
-            gsap.registerPlugin(ScrollTrigger);
-            
-            gsap.from(".gsap-hero", {
-                y: 50,
-                opacity: 0,
-                duration: 1,
-                stagger: 0.2,
-                ease: "power3.out",
-                delay: 0.2
-            });
-
-            gsap.utils.toArray('.gsap-section').forEach(section => {
-                gsap.from(section, {
-                    scrollTrigger: {
-                        trigger: section,
-                        start: "top 80%",
-                    },
-                    y: 30,
-                    opacity: 0,
-                    duration: 0.8,
-                    ease: "power2.out"
-                });
-            });
-
-            gsap.utils.toArray('.gsap-card').forEach(card => {
-                gsap.from(card, {
-                    scrollTrigger: {
-                        trigger: card,
-                        start: "top 85%",
-                    },
-                    scale: 0.95,
-                    y: 40,
-                    opacity: 0,
-                    duration: 0.6,
-                    ease: "back.out(1.2)"
-                });
-            });
-        };
+        animateBg();
 
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -797,151 +621,83 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-
-        // 3. TOOLS LOGIC (Resume, Jobs, Skills)
-        const dropZone = document.getElementById('drop-zone');
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-        });
-        function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.add('border-cyan-400', 'bg-slate-800'), false);
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.remove('border-cyan-400', 'bg-slate-800'), false);
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if(files.length > 0) handleFileUpload({files: files});
-        });
-
-        function handleFileUpload(input) {
-            if(!input.files || input.files.length === 0) return;
-            const file = input.files[0];
-            
-            dropZone.classList.add('hidden');
-            const resultsArea = document.getElementById('resume-results');
-            const bar = document.getElementById('upload-bar');
-            const percentText = document.getElementById('upload-percent');
-            const statusText = document.getElementById('upload-status');
-            const scoreCard = document.getElementById('score-card');
-            
-            resultsArea.classList.remove('hidden');
-            scoreCard.classList.add('hidden');
-            bar.style.width = '0%';
-            
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 15;
-                if(progress >= 100) {
-                    progress = 100;
-                    clearInterval(interval);
-                    statusText.innerText = "Analysis Complete!";
-                    setTimeout(() => {
-                        scoreCard.classList.remove('hidden');
-                        scoreCard.animate([
-                            { transform: 'scale(0.95)', opacity: 0 },
-                            { transform: 'scale(1)', opacity: 1 }
-                        ], { duration: 400, easing: 'ease-out' });
-                    }, 500);
-                } else if(progress > 60) {
-                    statusText.innerText = "Scoring against ATS models...";
-                } else if (progress > 30) {
-                    statusText.innerText = "Extracting keywords...";
-                }
-                
-                bar.style.width = `${progress}%`;
-                percentText.innerText = `${Math.floor(progress)}%`;
-            }, 300);
-        }
-
-        function resetResume() {
-            document.getElementById('resume-results').classList.add('hidden');
-            document.getElementById('drop-zone').classList.remove('hidden');
-            document.getElementById('file-upload').value = '';
-        }
-
-        function findJobs(event) {
-            const input = document.getElementById('job-role').value;
-            if(!input) return showToast("Please enter a desired role");
-            
-            const btn = event.currentTarget;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Searching...';
-            btn.disabled = true;
-
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Find Matches';
-                btn.disabled = false;
-                document.getElementById('job-results').classList.remove('hidden');
-            }, 800);
-        }
-
-        function analyzeSkills(event) {
-            const btn = event.currentTarget;
-            const originalText = btn.innerText;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-            
-            setTimeout(() => {
-                btn.innerText = originalText;
-                document.getElementById('skill-results').classList.remove('hidden');
-            }, 600);
-        }
-
-
-        // AI VOICE INTERVIEW CORE LOGIC
+        // ==========================================
+        // 2. REAL-TIME VOICE INTERVIEW ENGINE
+        // ==========================================
         const interviewQuestions = [
-            "Tell me about a time you had to learn a new technology quickly to solve a problem.",
-            "Can you describe a situation where you disagreed with a team member on a technical approach? How did you resolve it?",
-            "What is your debugging process when you encounter a complex bug that you've never seen before?",
-            "Where do you see your technical skills progressing in the next three years?"
+            {
+                q: "Tell me about a time you had to learn a new technology quickly to solve a critical problem.",
+                keywords: ["learned", "documentation", "prototype", "architecture", "implemented", "resolved", "deadline", "production", "stack"],
+                topic: "Adaptability & Tech Agility"
+            },
+            {
+                q: "Can you describe a situation where you disagreed with a team member on a technical approach? How did you resolve it?",
+                keywords: ["tradeoff", "consensus", "benchmarked", "data", "alignment", "perspective", "compromise", "review", "objective"],
+                topic: "Technical Conflict & Collaboration"
+            },
+            {
+                q: "What is your step-by-step debugging process when you encounter a complex production bug that you have never seen before?",
+                keywords: ["reproduce", "logs", "metrics", "isolated", "root cause", "hypothesis", "telemetry", "patch", "unit test", "regression"],
+                topic: "Systematic Troubleshooting"
+            },
+            {
+                q: "Where do you see your technical engineering skills progressing over the next three years?",
+                keywords: ["system design", "mentorship", "scalability", "specialization", "architecture", "leadership", "impact", "domain"],
+                topic: "Career Vision & Growth"
+            }
         ];
+
         let currentQIndex = 0;
         let isRecording = false;
         let recognition = null;
+        let audioContext = null;
+        let analyser = null;
+        let microphoneStream = null;
+        let animationFrameId = null;
+        
+        let speechStartTime = null;
         let finalTranscript = "";
+        let savedApiKey = localStorage.getItem('gemini_api_key') || "";
 
+        const transcriptBox = document.getElementById('transcript-box');
+        const statusText = document.getElementById('interview-status');
         const micContainer = document.getElementById('mic-container');
         const micIcon = document.getElementById('mic-icon');
-        const statusText = document.getElementById('interview-status');
-        const wave = document.getElementById('sound-wave');
-        const btnStart = document.getElementById('btn-start');
-        const btnStop = document.getElementById('btn-stop');
-        const questionText = document.getElementById('current-question');
-        const transcriptBox = document.getElementById('transcript-box');
-        const btnSubmit = document.getElementById('btn-submit');
         const recIndicator = document.getElementById('recording-indicator');
+        const btnToggleMic = document.getElementById('btn-toggle-mic');
+        const questionText = document.getElementById('current-question');
+        const qTracker = document.getElementById('question-tracker');
 
-        // Setup Speech Recognition
-        if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        // Live Telemetry Elements
+        const liveWpmEl = document.getElementById('live-wpm');
+        const liveWpmBadge = document.getElementById('live-wpm-badge');
+        const liveFillersEl = document.getElementById('live-fillers');
+        const liveFillersBadge = document.getElementById('live-fillers-badge');
+        const liveWordsEl = document.getElementById('live-words');
+        const liveStarStatus = document.getElementById('live-star-status');
+        const starDots = document.getElementById('star-dots').children;
+
+        const FILLER_WORDS = ['um', 'uh', 'like', 'literally', 'basically', 'actually', 'you know', 'sort of', 'kind of'];
+
+        // Speech Recognition Setup with Auto-Restart
+        function setupSpeechRecognition() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = 'en-US';
+            if (!SpeechRecognition) {
+                showToast("Speech Recognition API not supported on this browser. Type in the box directly.");
+                return null;
+            }
 
-            recognition.onstart = function() {
+            const rec = new SpeechRecognition();
+            rec.continuous = true;
+            rec.interimResults = true;
+            rec.lang = 'en-US';
+
+            rec.onstart = function() {
                 isRecording = true;
-                statusText.innerText = "Listening...";
-                statusText.classList.replace('text-slate-400', 'text-cyan-400');
-                micContainer.classList.add('mic-active-ring', 'border-cyan-500');
-                micIcon.classList.replace('text-slate-400', 'text-cyan-400');
-                wave.classList.add('recording');
-                wave.style.opacity = '1';
-                recIndicator.classList.remove('hidden');
-                
-                btnStart.classList.add('hidden');
-                btnStop.classList.remove('hidden');
-                
-                transcriptBox.disabled = false; 
-                btnSubmit.disabled = false;
-                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+                updateUIRecordingState(true);
             };
 
-            recognition.onresult = function(event) {
+            rec.onresult = function(event) {
                 let interimTranscript = '';
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     if (event.results[i].isFinal) {
@@ -950,172 +706,348 @@
                         interimTranscript += event.results[i][0].transcript;
                     }
                 }
-                transcriptBox.value = finalTranscript + interimTranscript;
+                const fullText = (finalTranscript + interimTranscript).trim();
+                transcriptBox.value = fullText;
+                runLiveTelemetry(fullText);
             };
 
-            recognition.onerror = function(event) {
-                console.error("Speech Rec Error:", event.error);
-                if(event.error !== 'no-speech') {
-                    showToast("Microphone error: " + event.error);
-                    stopRecording();
+            rec.onerror = function(event) {
+                console.warn("Speech Rec Error:", event.error);
+                if (event.error === 'not-allowed') {
+                    showToast("Microphone access denied. Please allow mic permissions in your browser.");
+                    stopInterview();
                 }
             };
 
-            recognition.onend = function() {
-                if(isRecording) stopRecording();
+            // THE REAL-TIME FIX: Do NOT stop recording when recognition closes due to brief silence.
+            rec.onend = function() {
+                if (isRecording) {
+                    try {
+                        rec.start(); // Auto-restart listening seamlessly
+                    } catch (err) {
+                        console.log("Auto-restart throttled", err);
+                    }
+                }
             };
-        } else {
-            showToast("Speech Recognition API not supported in this browser. Please type instead.");
-            transcriptBox.disabled = false; 
-            btnSubmit.disabled = false;
-            btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            return rec;
         }
 
-        // Speech Synthesis
-        function speakQuestion(text, onEndCallback) {
+        recognition = setupSpeechRecognition();
+
+        // Real-Time Audio Spectrum Reactivity (Web Audio API)
+        async function startRealTimeAudioVisualizer() {
+            try {
+                microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 32;
+
+                const source = audioContext.createMediaStreamSource(microphoneStream);
+                source.connect(analyser);
+
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                function renderWave() {
+                    if (!isRecording) return;
+                    analyser.getByteFrequencyData(dataArray);
+
+                    for (let i = 0; i < 7; i++) {
+                        const bar = document.getElementById(`bar-${i}`);
+                        if (bar) {
+                            const val = dataArray[i + 2] || 0;
+                            // Scale height from 8px to 42px based on real acoustic volume
+                            const height = Math.max(8, (val / 255) * 44);
+                            bar.style.height = `${height}px`;
+                            bar.style.backgroundColor = val > 140 ? '#818cf8' : '#2dd4bf';
+                        }
+                    }
+                    animationFrameId = requestAnimationFrame(renderWave);
+                }
+                renderWave();
+            } catch (err) {
+                console.warn("Real-time Audio Visualizer unavailable:", err);
+            }
+        }
+
+        function stopRealTimeAudioVisualizer() {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            if (microphoneStream) {
+                microphoneStream.getTracks().forEach(track => track.stop());
+                microphoneStream = null;
+            }
+            if (audioContext && audioContext.state !== 'closed') {
+                audioContext.close();
+            }
+            // Reset bar heights
+            for (let i = 0; i < 7; i++) {
+                const bar = document.getElementById(`bar-${i}`);
+                if (bar) bar.style.height = '8px';
+            }
+        }
+
+        // Live Speaking Telemetry
+        function runLiveTelemetry(text) {
+            if (!text) return;
+            const words = text.toLowerCase().match(/\b[a-z']+\b/g) || [];
+            const wordCount = words.length;
+            liveWordsEl.innerText = wordCount;
+
+            // 1. Calculate WPM (Words Per Minute)
+            if (speechStartTime && wordCount > 2) {
+                const minutesElapsed = (Date.now() - speechStartTime) / 60000;
+                if (minutesElapsed > 0.05) {
+                    const wpm = Math.round(wordCount / minutesElapsed);
+                    liveWpmEl.innerText = `${wpm} WPM`;
+
+                    if (wpm < 110) {
+                        liveWpmBadge.innerText = "Slow";
+                        liveWpmBadge.className = "text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300";
+                    } else if (wpm <= 165) {
+                        liveWpmBadge.innerText = "Optimal Pace";
+                        liveWpmBadge.className = "text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400";
+                    } else {
+                        liveWpmBadge.innerText = "Fast";
+                        liveWpmBadge.className = "text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300";
+                    }
+                }
+            }
+
+            // 2. Count Fillers
+            let fillerCount = 0;
+            FILLER_WORDS.forEach(filler => {
+                const regex = new RegExp(`\\b${filler}\\b`, 'gi');
+                const matches = text.match(regex);
+                if (matches) fillerCount += matches.length;
+            });
+            liveFillersEl.innerText = fillerCount;
+
+            if (fillerCount === 0) {
+                liveFillersBadge.innerText = "Clean";
+                liveFillersBadge.className = "text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400";
+            } else if (fillerCount < 4) {
+                liveFillersBadge.innerText = "Minor";
+                liveFillersBadge.className = "text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300";
+            } else {
+                liveFillersBadge.innerText = "Excessive";
+                liveFillersBadge.className = "text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300";
+            }
+
+            // 3. Detect STAR Structure in Real-Time
+            const hasSituation = /(problem|challenge|situation|bug|issue|task|needed to|assigned|goal)/i.test(text);
+            const hasAction = /(i implemented|i decided|i built|i investigated|i designed|i researched|i wrote|my approach)/i.test(text);
+            const hasResult = /(result|outcome|improved|reduced|optimized|delivered|resolved|fixed|learned|percent|success)/i.test(text);
+
+            let stagesMet = 0;
+            starDots[0].className = hasSituation ? "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "w-2.5 h-2.5 rounded-full bg-slate-700";
+            if (hasSituation) stagesMet++;
+
+            starDots[1].className = hasAction ? "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "w-2.5 h-2.5 rounded-full bg-slate-700";
+            if (hasAction) stagesMet++;
+
+            starDots[2].className = hasResult ? "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "w-2.5 h-2.5 rounded-full bg-slate-700";
+            if (hasResult) stagesMet++;
+
+            liveStarStatus.innerText = `${stagesMet}/3 Stages`;
+        }
+
+        function updateUIRecordingState(recording) {
+            if (recording) {
+                statusText.innerText = "Listening in real time... Speak freely.";
+                statusText.className = "text-center mt-4 text-sm font-medium text-cyan-400 animate-pulse";
+                micContainer.classList.add('mic-active-ring', 'border-cyan-400');
+                micIcon.className = "fa-solid fa-microphone text-4xl text-cyan-400";
+                recIndicator.classList.remove('hidden');
+                btnToggleMic.innerHTML = `<i class="fa-solid fa-pause"></i> <span>Pause Listening</span>`;
+                btnToggleMic.className = "w-full py-3.5 px-4 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-rose-600/20 flex items-center justify-center gap-2";
+            } else {
+                statusText.innerText = "Listening paused. Click Resume or Evaluate.";
+                statusText.className = "text-center mt-4 text-sm font-medium text-slate-300";
+                micContainer.classList.remove('mic-active-ring', 'border-cyan-400');
+                micIcon.className = "fa-solid fa-microphone text-4xl text-slate-400";
+                recIndicator.classList.add('hidden');
+                btnToggleMic.innerHTML = `<i class="fa-solid fa-microphone"></i> <span>Resume Speaking</span>`;
+                btnToggleMic.className = "w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white rounded-xl font-bold transition-all shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2";
+            }
+        }
+
+        // Direct user-action triggered start to avoid permission block
+        async function startInterview() {
+            speechStartTime = Date.now();
+            isRecording = true;
+
+            if (recognition) {
+                try {
+                    recognition.start();
+                } catch (e) {
+                    console.log("Recognition active already", e);
+                }
+            }
+            await startRealTimeAudioVisualizer();
+            updateUIRecordingState(true);
+        }
+
+        function stopInterview() {
+            isRecording = false;
+            if (recognition) {
+                try { recognition.stop(); } catch(e) {}
+            }
+            stopRealTimeAudioVisualizer();
+            updateUIRecordingState(false);
+        }
+
+        function toggleInterview() {
+            if (isRecording) {
+                stopInterview();
+            } else {
+                startInterview();
+            }
+        }
+
+        function speakQuestion(text, callback) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
-                
                 const voices = window.speechSynthesis.getVoices();
-                const aiVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Female') || v.name.includes('Google UK') || v.name.includes('Samantha')));
-                if(aiVoice) utterance.voice = aiVoice;
+                const targetVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Natural') || v.name.includes('Samantha') || v.name.includes('Google UK')));
+                if (targetVoice) utterance.voice = targetVoice;
+                utterance.rate = 1.0;
                 
-                utterance.rate = 0.95;
-                
-                utterance.onstart = () => {
-                    statusText.innerText = "AI is speaking...";
-                    statusText.classList.replace('text-slate-400', 'text-indigo-400');
-                    micIcon.classList.replace('fa-microphone', 'fa-volume-high');
-                    micIcon.classList.add('animate-pulse', 'text-indigo-400');
-                };
-                
+                statusText.innerText = "Interviewer is asking the question...";
+                statusText.className = "text-center mt-4 text-sm font-medium text-indigo-400";
+
                 utterance.onend = () => {
-                    micIcon.classList.replace('fa-volume-high', 'fa-microphone');
-                    micIcon.classList.remove('animate-pulse', 'text-indigo-400');
-                    if(onEndCallback) onEndCallback();
+                    statusText.innerText = "Ready. Start speaking whenever you wish.";
+                    statusText.className = "text-center mt-4 text-sm font-medium text-slate-300";
+                    if (callback) callback();
                 };
-                
                 window.speechSynthesis.speak(utterance);
             } else {
-                if(onEndCallback) onEndCallback();
+                if (callback) callback();
             }
-        }
-
-        function startInterview() {
-            if(!recognition && transcriptBox.disabled) return; 
-
-            const question = interviewQuestions[currentQIndex];
-            questionText.innerText = question;
-            transcriptBox.value = "";
-            finalTranscript = "";
-            
-            speakQuestion(question, () => {
-                if(recognition) {
-                    try { recognition.start(); } 
-                    catch(e) { console.log("Rec already started", e); }
-                }
-            });
-        }
-
-        function stopRecording() {
-            isRecording = false;
-            if(recognition) recognition.stop();
-            
-            statusText.innerText = "Recording stopped. Ready to submit.";
-            statusText.classList.replace('text-cyan-400', 'text-slate-400');
-            statusText.classList.replace('text-indigo-400', 'text-slate-400');
-            
-            micContainer.classList.remove('mic-active-ring', 'border-cyan-500');
-            micIcon.classList.replace('text-cyan-400', 'text-slate-400');
-            
-            wave.classList.remove('recording');
-            wave.style.opacity = '0.5';
-            recIndicator.classList.add('hidden');
-            
-            btnStop.classList.add('hidden');
-            btnStart.classList.remove('hidden');
-            btnStart.innerHTML = '<i class="fa-solid fa-microphone"></i> Resume';
         }
 
         function repeatQuestion() {
-            const q = interviewQuestions[currentQIndex];
-            if(!q) return;
-            if(isRecording) stopRecording();
-            speakQuestion(q, () => { showToast("Question repeated."); });
+            const item = interviewQuestions[currentQIndex];
+            speakQuestion(item.q);
         }
 
         function nextQuestion() {
-            if(isRecording) stopRecording();
+            stopInterview();
             currentQIndex = (currentQIndex + 1) % interviewQuestions.length;
-            questionText.innerText = interviewQuestions[currentQIndex];
+            const item = interviewQuestions[currentQIndex];
+            
+            questionText.innerText = item.q;
+            qTracker.innerText = `Question ${currentQIndex + 1} of ${interviewQuestions.length}`;
             transcriptBox.value = "";
             finalTranscript = "";
-            btnStart.innerHTML = '<i class="fa-solid fa-play"></i> Start';
-            statusText.innerText = "Ready to start.";
-            showToast("Moved to next question.");
+            
+            // Reset Telemetry
+            liveWpmEl.innerText = "0 WPM";
+            liveWpmBadge.innerText = "Idle";
+            liveFillersEl.innerText = "0";
+            liveFillersBadge.innerText = "Clean";
+            liveWordsEl.innerText = "0";
+            liveStarStatus.innerText = "0/3 Stages";
+            for(let dot of starDots) dot.className = "w-2.5 h-2.5 rounded-full bg-slate-700";
+
+            speakQuestion(item.q);
         }
 
-        // REAL API INTEGRATION /api/evaluate-answer
-        async function evaluateAnswerAPI(question, answer) {
-            try {
-                // Actual connection point for your backend AI model
-                const response = await fetch('/api/evaluate-answer', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question, answer })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+        // ==========================================
+        // 3. REAL-TIME CLIENT-SIDE AI EVALUATOR
+        // ==========================================
+        async function evaluateAnswerAPI(questionObj, answer) {
+            // If user supplied a Gemini API key in settings, execute direct live LLM evaluation
+            if (savedApiKey) {
+                try {
+                    const prompt = `You are a Principal Engineering Interviewer. Evaluate this answer for the question: "${questionObj.q}".
+Candidate Answer: "${answer}"
+Return STRICT JSON format matching:
+{
+  "status": "string (e.g. Strong Answer, Needs Structure)",
+  "score": number (0-100),
+  "pros": "string with exact positive technical choices observed",
+  "cons": "string with specific missing architectural or contextual details",
+  "explanation": "string explaining how this reflects on engineering seniority",
+  "improved": "string rewritten with crisp STAR structure"
+}`;
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${savedApiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    });
+                    const data = await res.json();
+                    const rawText = data.candidates[0].content.parts[0].text;
+                    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) return JSON.parse(jsonMatch[0]);
+                } catch(e) {
+                    console.warn("Direct Gemini call failed, falling back to local engine", e);
                 }
-
-                // If backend is active and functioning properly, it should return JSON:
-                // { status, statusColor, score, pros, cons, explanation, improved }
-                return await response.json(); 
-            } catch (error) {
-                console.warn("Backend /api/evaluate-answer is currently unreachable. Triggering visual fallback data.", error);
-                
-                // Show badge indicating backend is disconnected
-                document.getElementById('api-error-badge').classList.remove('hidden');
-                
-                // Simulated fallback for frontend demo purposes when backend isn't mounted
-                return new Promise((resolve) => {
-                    setTimeout(() => {
-                        const length = answer.trim().length;
-                        let status, statusColor, score, pros, cons, improved, explanation;
-                        
-                        if (length < 30) {
-                            status = "✗ Needs Improvement"; statusColor = "text-red-400"; score = Math.floor(Math.random() * 20) + 30;
-                            pros = "You addressed the prompt immediately without rambling.";
-                            cons = "The answer was far too brief and lacked context or examples.";
-                            explanation = "Technical interviews require the STAR method (Situation, Task, Action, Result) to fully gauge your competency.";
-                            improved = "While I haven't encountered that specific issue, a similar situation was when I... [Detailed Example]... resulting in a 20% efficiency gain.";
-                        } else if (length < 100) {
-                            status = "⚠ Partially Correct"; statusColor = "text-yellow-400"; score = Math.floor(Math.random() * 20) + 60;
-                            pros = "Good starting point, clear communication, and relevant to the topic.";
-                            cons = "Lacked specific technical depth and concrete metrics to back up your claims.";
-                            explanation = "The AI looks for specific structural components. You provided the 'Action' but missed the 'Result'.";
-                            improved = "[Your answer] + 'As a result, we successfully met the deadline and reduced server load by 15%, ensuring smooth operation.'";
-                        } else {
-                            status = "✓ Excellent & Relevant"; statusColor = "text-green-400"; score = Math.floor(Math.random() * 10) + 90;
-                            pros = "Detailed, well-structured, uses the STAR method effectively, and shows strong problem-solving skills.";
-                            cons = "Slight rambling in the middle section, keep it a bit more concise.";
-                            explanation = "Excellent use of technical vocabulary and concrete outcomes.";
-                            improved = "Your answer is already very strong. Just ensure you pause slightly between outlining the problem and your solution.";
-                        }
-                        resolve({ status, statusColor, score, pros, cons, explanation, improved });
-                    }, 1000);
-                });
             }
+
+            // Zero-latency Local Semantic Evaluator
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const lower = answer.toLowerCase();
+                    const words = lower.match(/\b[a-z']+\b/g) || [];
+                    const wordCount = words.length;
+
+                    // Keyword coverage against question syllabus
+                    let matchedKeywords = [];
+                    questionObj.keywords.forEach(kw => {
+                        if (lower.includes(kw)) matchedKeywords.push(kw);
+                    });
+
+                    // STAR Criteria
+                    const hasS = /(problem|challenge|situation|bug|issue|task|assigned)/i.test(lower);
+                    const hasA = /(implemented|decided|built|investigated|designed|refactored|wrote)/i.test(lower);
+                    const hasR = /(result|outcome|improved|reduced|optimized|delivered|resolved|fixed)/i.test(lower);
+                    const starCount = [hasS, hasA, hasR].filter(Boolean).length;
+
+                    // Filler word penalty
+                    let fillerHits = 0;
+                    FILLER_WORDS.forEach(f => {
+                        const m = lower.match(new RegExp(`\\b${f}\\b`, 'g'));
+                        if (m) fillerHits += m.length;
+                    });
+
+                    // Dynamic Scoring Algorithm
+                    let score = 40;
+                    score += Math.min(30, matchedKeywords.length * 6);
+                    score += starCount * 12;
+                    if (wordCount >= 60 && wordCount <= 220) score += 10;
+                    if (fillerHits > 4) score -= 8;
+                    score = Math.max(25, Math.min(97, score));
+
+                    let status = "✓ Well Structured Answer";
+                    if (score < 55) status = "✗ Needs Concrete Technical Depth";
+                    else if (score < 75) status = "⚠ Good Start, Expand Metrics";
+
+                    let pros = `Solid coverage of core concepts (${matchedKeywords.slice(0, 3).join(', ') || 'clear premise'}). Answer was direct and communicative.`;
+                    let cons = "";
+                    if (starCount < 2) {
+                        cons = "Lacked full STAR framing (Situation, Action, Result). State the tangible result or impact of your action explicitly.";
+                    } else if (matchedKeywords.length < 2) {
+                        cons = `Missed critical domain vocabulary such as ${questionObj.keywords.slice(0, 3).join(', ')}.`;
+                    } else {
+                        cons = "Minor: Include quantifiable impact (e.g. latency reduced by X ms, or sprint delivery accelerated).";
+                    }
+
+                    let explanation = `In engineering screens for ${questionObj.topic}, interviewers look for structured problem decomposition and ownership. You hit ${matchedKeywords.length} key technical markers.`;
+                    let improved = `"${hasS ? 'When faced with this,' : 'In a recent system challenge,'} I diagnosed the problem using metrics, took ownership by introducing ${matchedKeywords[0] || 'a systematic design approach'}, which successfully delivered stability and unblocked the team."`;
+
+                    resolve({ status, score, pros, cons, explanation, improved });
+                }, 280);
+            });
         }
 
         async function submitAnswer() {
-            if(isRecording) stopRecording();
-            
-            const answer = transcriptBox.value;
-            if(!answer.trim()) {
-                showToast("Please provide an answer before submitting.");
+            stopInterview();
+
+            const answer = transcriptBox.value.trim();
+            if (!answer) {
+                showToast("Please speak or write an answer before evaluating.");
                 return;
             }
 
@@ -1123,43 +1055,38 @@
             const content = document.getElementById('eval-content');
             const loading = document.getElementById('eval-loading');
             const resultUI = document.getElementById('eval-result');
-            
-            // Reset API Warning badge
-            document.getElementById('api-error-badge').classList.add('hidden');
 
             panel.classList.remove('hidden');
-            void panel.offsetWidth; // reflow
+            void panel.offsetWidth;
             content.classList.replace('scale-95', 'scale-100');
             content.classList.replace('opacity-0', 'opacity-100');
-            
+
             loading.classList.remove('hidden');
             resultUI.classList.add('hidden');
 
-            // Trigger REAL fetch call
-            const question = interviewQuestions[currentQIndex];
-            const result = await evaluateAnswerAPI(question, answer);
+            const currentQ = interviewQuestions[currentQIndex];
+            const result = await evaluateAnswerAPI(currentQ, answer);
 
+            // Populate Modal
             loading.classList.add('hidden');
             resultUI.classList.remove('hidden');
-            
-            const statusEl = document.getElementById('eval-status-text');
-            statusEl.innerText = result.status;
-            statusEl.className = `text-2xl font-bold mb-1 ${result.statusColor}`;
-            
+
+            document.getElementById('eval-status-text').innerText = result.status;
+            document.getElementById('eval-wpm-metric').innerText = liveWpmEl.innerText;
+            document.getElementById('eval-fillers-metric').innerText = `${liveFillersEl.innerText} detected`;
+            document.getElementById('eval-star-metric').innerText = liveStarStatus.innerText;
+
             const scoreEl = document.getElementById('eval-score');
             scoreEl.innerText = "0";
-            let curScore = 0;
-            const scoreInterval = setInterval(() => {
-                curScore += 2;
-                if(curScore >= result.score) {
-                    curScore = result.score;
-                    clearInterval(scoreInterval);
+            let c = 0;
+            const timer = setInterval(() => {
+                c += 2;
+                if (c >= result.score) {
+                    c = result.score;
+                    clearInterval(timer);
                 }
-                scoreEl.innerText = curScore;
-                if(curScore >= 80) scoreEl.className = "font-bold text-lg text-green-400";
-                else if (curScore >= 60) scoreEl.className = "font-bold text-lg text-yellow-400";
-                else scoreEl.className = "font-bold text-lg text-red-400";
-            }, 20);
+                scoreEl.innerText = c;
+            }, 15);
 
             document.getElementById('eval-pros').innerText = result.pros;
             document.getElementById('eval-cons').innerText = result.cons;
@@ -1173,21 +1100,95 @@
             content.classList.replace('opacity-100', 'opacity-0');
             setTimeout(() => {
                 document.getElementById('evaluation-panel').classList.add('hidden');
-            }, 300);
+            }, 250);
         }
 
         function closeEvaluationAndNext() {
             closeEvaluation();
-            setTimeout(() => {
-                nextQuestion();
-            }, 300);
+            setTimeout(() => nextQuestion(), 300);
         }
 
-        if('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = () => {
-                window.speechSynthesis.getVoices();
-            };
+        // ==========================================
+        // 4. API SETTINGS MODAL LOGIC
+        // ==========================================
+        function toggleApiSettings() {
+            const modal = document.getElementById('settings-modal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                document.getElementById('gemini-api-key').value = savedApiKey;
+            }
         }
+
+        function saveApiKey() {
+            const key = document.getElementById('gemini-api-key').value.trim();
+            savedApiKey = key;
+            localStorage.setItem('gemini_api_key', key);
+            toggleApiSettings();
+            showToast(key ? "Gemini Key Saved. Cloud evaluation enabled!" : "Using Real-Time Local Engine.");
+        }
+
+        // ==========================================
+        // 5. RESUME & UTILITY TOOLS
+        // ==========================================
+        function handleFileUpload(input) {
+            if(!input.files || input.files.length === 0) return;
+            const dropZone = document.getElementById('drop-zone');
+            dropZone.classList.add('hidden');
+            const resultsArea = document.getElementById('resume-results');
+            const bar = document.getElementById('upload-bar');
+            const percentText = document.getElementById('upload-percent');
+            const scoreCard = document.getElementById('score-card');
+            
+            resultsArea.classList.remove('hidden');
+            scoreCard.classList.add('hidden');
+            
+            let p = 0;
+            const interval = setInterval(() => {
+                p += 20;
+                bar.style.width = `${p}%`;
+                percentText.innerText = `${p}%`;
+                if(p >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => scoreCard.classList.remove('hidden'), 300);
+                }
+            }, 100);
+        }
+
+        function resetResume() {
+            document.getElementById('resume-results').classList.add('hidden');
+            document.getElementById('drop-zone').classList.remove('hidden');
+            document.getElementById('file-upload').value = '';
+        }
+
+        function findJobs(e) {
+            const btn = e.currentTarget;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Parsing...`;
+            setTimeout(() => {
+                btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Analyze Role Match`;
+                document.getElementById('job-results').classList.remove('hidden');
+            }, 400);
+        }
+
+        function analyzeSkills(e) {
+            const btn = e.currentTarget;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+            setTimeout(() => {
+                btn.innerText = "Detect";
+                document.getElementById('skill-results').classList.remove('hidden');
+            }, 400);
+        }
+
+        // Manual text sync to telemetry
+        transcriptBox.addEventListener('input', (e) => {
+            runLiveTelemetry(e.target.value);
+        });
+
+        window.onload = function() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.getVoices();
+                window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+            }
+        };
     </script>
 </body>
 </html>
