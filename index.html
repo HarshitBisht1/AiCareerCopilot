@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Career Copilot | Real-Time Voice Assistant</title>
+    <title>AI Career Copilot | Your Smart Career Assistant</title>
     
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Google Fonts -->
@@ -24,11 +24,12 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #020617;
-            color: #f8fafc;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc; /* Slate 50 */
             overflow-x: hidden;
         }
 
+        /* 3D Background Canvas */
         #bg-canvas {
             position: fixed;
             top: 0;
@@ -39,6 +40,7 @@
             pointer-events: none;
         }
 
+        /* Glassmorphism Styles */
         .glass-panel {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(12px);
@@ -59,6 +61,7 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.2);
         }
 
+        /* Gradient Text */
         .text-gradient {
             background: linear-gradient(to right, #818cf8, #2dd4bf);
             -webkit-background-clip: text;
@@ -66,11 +69,13 @@
             background-clip: text;
         }
 
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #020617; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
+        /* Animations */
         @keyframes pulse-ring {
             0% { transform: scale(0.9); opacity: 0.7; }
             100% { transform: scale(1.8); opacity: 0; }
@@ -86,7 +91,7 @@
             animation: pulse-ring 1.8s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
         }
 
-        /* Reactive Audio Wave */
+        /* Reactive Audio Wave Animation */
         .sound-wave {
             display: flex;
             align-items: center;
@@ -102,6 +107,7 @@
             transition: height 0.08s ease-out, background-color 0.2s ease;
         }
 
+        /* Toast Notification */
         #toast-container {
             position: fixed;
             bottom: 20px;
@@ -131,34 +137,44 @@
 <body class="antialiased">
 
     <canvas id="bg-canvas"></canvas>
+
+    <!-- Toast Notifications -->
     <div id="toast-container"></div>
 
-    <!-- Navigation -->
     <nav class="fixed w-full z-50 glass-panel border-b-0 transition-all duration-300" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
-                <a href="#hero" class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                <!-- LinkedIn Logo Link -->
+                <a href="https://www.linkedin.com/in/harshit-bisht-69127b216" target="_blank" class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                         <i class="fa-solid fa-brain text-white text-xl"></i>
                     </div>
                     <span class="font-bold text-xl tracking-tight">AI Career <span class="text-gradient">Copilot</span></span>
                 </a>
                 
-                <div class="hidden md:flex items-baseline space-x-8">
-                    <a href="#interview" class="text-cyan-400 font-semibold px-3 py-2 text-sm flex items-center gap-2">
-                        <span class="relative flex h-2.5 w-2.5">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
-                        </span>
-                        Real-Time Interview
-                    </a>
-                    <a href="#tools" class="hover:text-cyan-400 transition-colors px-3 py-2 text-sm font-medium">Tools</a>
-                    <a href="#how-it-works" class="hover:text-cyan-400 transition-colors px-3 py-2 text-sm font-medium">How it Works</a>
+                <!-- Desktop Nav -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#dashboard" class="hover:text-cyan-400 transition-colors px-3 py-2 text-sm font-medium">Dashboard</a>
+                        <a href="#tools" class="hover:text-cyan-400 transition-colors px-3 py-2 text-sm font-medium">Tools</a>
+                        <a href="#interview" class="text-cyan-400 font-semibold px-3 py-2 text-sm flex items-center gap-2">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
+                            </span>
+                            Live Interview
+                        </a>
+                        <a href="#how-it-works" class="hover:text-cyan-400 transition-colors px-3 py-2 text-sm font-medium">How it Works</a>
+                    </div>
                 </div>
                 
                 <div>
-                    <button onclick="toggleApiSettings()" class="inline-flex items-center gap-2 px-4 py-2 border border-slate-700 hover:border-cyan-400/50 text-xs font-medium rounded-full text-slate-300 bg-slate-900/60 hover:text-white transition-all">
-                        <i class="fa-solid fa-sliders text-cyan-400"></i> Settings
+                    <button onclick="toggleApiSettings()" class="hidden md:inline-flex items-center justify-center px-4 py-2 border border-slate-700 hover:border-cyan-400/50 text-xs font-medium rounded-full text-slate-300 bg-slate-900/60 hover:text-white transition-all">
+                        <i class="fa-solid fa-sliders text-cyan-400 mr-2"></i> Settings
+                    </button>
+                    <!-- Mobile menu button -->
+                    <button class="md:hidden text-gray-300 hover:text-white p-2" onclick="showToast('Mobile menu toggled')">
+                        <i class="fa-solid fa-bars text-2xl"></i>
                     </button>
                 </div>
             </div>
@@ -183,8 +199,7 @@
     </div>
 
     <main class="pt-20">
-        <!-- Hero Section -->
-        <section id="hero" class="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
+        <section id="hero" class="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center flex flex-col items-center">
                 <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel text-sm text-cyan-300 mb-8 gsap-hero">
                     <span class="relative flex h-3 w-3">
@@ -194,31 +209,159 @@
                     Real-Time Speech Engine v4.2 Active
                 </div>
                 <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 gsap-hero">
-                    Master Technical Interviews <br/> <span class="text-gradient">In Real Time</span>
+                    Your AI-Powered <br/> <span class="text-gradient">Career Copilot</span>
                 </h1>
-                <p class="mt-2 max-w-2xl text-lg md:text-xl text-slate-300 mb-10 gsap-hero mx-auto">
-                    Speak naturally. Receive instant pace tracking, filler word detection, STAR structuring analysis, and detailed feedback.
+                <p class="mt-4 max-w-2xl text-lg md:text-xl text-slate-300 mb-10 gsap-hero mx-auto">
+                    Analyze your resume, master interviews with real-time AI voice feedback, and discover your perfect job match in seconds.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 gsap-hero">
                     <a href="#interview" class="inline-flex items-center justify-center px-8 py-4 text-base font-medium rounded-full text-white bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 shadow-lg shadow-cyan-500/25 transition-all hover:scale-105">
-                        <i class="fa-solid fa-microphone mr-2"></i> Launch Voice Interview
+                        <i class="fa-solid fa-microphone mr-2"></i> Try Live Interview
+                    </a>
+                    <a href="#tools" class="inline-flex items-center justify-center px-8 py-4 text-base font-medium rounded-full text-white glass-panel hover:bg-white/10 transition-all hover:scale-105">
+                        Explore Tools
                     </a>
                 </div>
             </div>
         </section>
 
-        <!-- Real-Time Voice Interview Section -->
-        <section id="interview" class="py-16 relative overflow-hidden">
+        <!-- DASHBOARD SECTION -->
+        <section id="dashboard" class="py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold mb-10 text-center gsap-section"><i class="fa-solid fa-chart-pie mr-2 text-indigo-400"></i> Career Dashboard</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-card p-6 rounded-2xl gsap-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-slate-400 font-medium">Avg. ATS Score</h3>
+                            <i class="fa-solid fa-file-contract text-cyan-400 text-xl"></i>
+                        </div>
+                        <div class="text-4xl font-bold text-white mb-2">84%</div>
+                        <p class="text-sm text-green-400"><i class="fa-solid fa-arrow-up"></i> +12% this month</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-2xl gsap-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-slate-400 font-medium">Mock Interviews</h3>
+                            <i class="fa-solid fa-headset text-purple-400 text-xl"></i>
+                        </div>
+                        <div class="text-4xl font-bold text-white mb-2">12</div>
+                        <p class="text-sm text-slate-400">Last interview: 2 days ago</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-2xl gsap-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-slate-400 font-medium">Job Matches</h3>
+                            <i class="fa-solid fa-briefcase text-indigo-400 text-xl"></i>
+                        </div>
+                        <div class="text-4xl font-bold text-white mb-2">143</div>
+                        <p class="text-sm text-green-400"><i class="fa-solid fa-arrow-up"></i> 5 new high-match roles</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOOLS SECTION -->
+        <section id="tools" class="py-20 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16 gsap-section">
+                    <h2 class="text-4xl font-bold mb-4">AI Analysis <span class="text-gradient">Tools</span></h2>
+                    <p class="text-slate-400 max-w-2xl mx-auto">Optimize your profile and find exactly what you need to land your dream job.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Resume Analyzer -->
+                    <div class="glass-card p-8 rounded-3xl gsap-card flex flex-col">
+                        <h3 class="text-2xl font-bold mb-2"><i class="fa-solid fa-file-pdf text-indigo-400 mr-2"></i> ATS Resume Scanner</h3>
+                        <p class="text-slate-400 mb-6 text-sm">Upload your resume to check parser pass rates and keyword coverage.</p>
+                        
+                        <div id="drop-zone" class="border-2 border-dashed border-slate-600 rounded-xl p-10 text-center transition-all duration-300 hover:border-cyan-400 bg-slate-900/50 flex-grow flex flex-col justify-center items-center cursor-pointer" onclick="document.getElementById('file-upload').click()">
+                            <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 mb-4 drop-icon"></i>
+                            <p class="text-slate-300 font-medium">Drag & drop your resume here</p>
+                            <p class="text-slate-500 text-sm mt-2">or click to browse (PDF, DOCX)</p>
+                            <input type="file" id="file-upload" class="hidden" accept=".pdf,.doc,.docx" onchange="handleFileUpload(this)">
+                        </div>
+
+                        <div id="resume-results" class="hidden mt-6 flex-grow flex flex-col justify-center">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-slate-300" id="upload-status">Scanning content...</span>
+                                <span class="text-cyan-400 font-bold" id="upload-percent">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-700 rounded-full h-2 mb-4">
+                                <div id="upload-bar" class="bg-gradient-to-r from-indigo-500 to-cyan-400 h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
+                            </div>
+                            
+                            <div id="score-card" class="hidden glass-panel p-4 rounded-xl border-emerald-500/30 bg-emerald-500/10 mt-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-16 h-16 rounded-full border-4 border-emerald-400 flex items-center justify-center font-bold text-2xl text-white shadow-[0_0_15px_rgba(52,211,153,0.3)]">
+                                        94
+                                    </div>
+                                    <div>
+                                        <h4 class="text-emerald-400 font-bold">ATS Optimized</h4>
+                                        <p class="text-xs text-slate-300 mt-1">High semantic match across senior technical roles.</p>
+                                    </div>
+                                </div>
+                                <button class="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm transition-colors" onclick="resetResume()">Scan Another Document</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Job Matcher & Gap Analyzer -->
+                    <div class="space-y-8">
+                        <div class="glass-card p-8 rounded-3xl gsap-card">
+                            <h3 class="text-2xl font-bold mb-2"><i class="fa-solid fa-bullseye text-cyan-400 mr-2"></i> Role Alignment Engine</h3>
+                            <p class="text-slate-400 mb-6 text-sm">Find roles that perfectly align with your current skills.</p>
+                            <div class="space-y-4">
+                                <input type="text" id="job-role" placeholder="Target Role (e.g. Distributed Systems Engineer)" class="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-400 transition-colors">
+                                <button onclick="findJobs(event)" class="w-full py-3 bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 rounded-lg font-medium transition-all flex justify-center items-center gap-2">
+                                    <i class="fa-solid fa-magnifying-glass"></i> Analyze Role Match
+                                </button>
+                                <div id="job-results" class="hidden mt-4 space-y-3">
+                                    <div class="glass-panel p-3 rounded-lg border-l-4 border-l-cyan-400 flex justify-between items-center">
+                                        <div>
+                                            <h4 class="font-semibold text-sm">Staff Cloud Architect</h4>
+                                            <p class="text-xs text-slate-400">Enterprise Systems Tier</p>
+                                        </div>
+                                        <span class="text-emerald-400 font-bold text-sm">96% Fit</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-8 rounded-3xl gsap-card">
+                            <h3 class="text-2xl font-bold mb-2"><i class="fa-solid fa-link text-purple-400 mr-2"></i> Skill Gap Detector</h3>
+                            <div class="flex gap-2 mb-4">
+                                <input type="text" value="Senior Backend" class="w-1/2 bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-400">
+                                <button onclick="analyzeSkills(event)" class="w-1/2 py-2 bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600/40 rounded-lg font-medium text-sm transition-all">
+                                    Detect Gaps
+                                </button>
+                            </div>
+                            <div id="skill-results" class="hidden">
+                                <p class="text-xs text-slate-400 mb-2">High-yield gaps to close before interview:</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-2 py-1 bg-slate-800 rounded-md text-xs text-rose-300 border border-rose-500/30">eBPF Profiling</span>
+                                    <span class="px-2 py-1 bg-slate-800 rounded-md text-xs text-amber-300 border border-amber-500/30">Raft Consensus</span>
+                                    <span class="px-2 py-1 bg-slate-800 rounded-md text-xs text-cyan-300 border border-cyan-500/30">gRPC Streaming</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- REAL-TIME VOICE INTERVIEW SECTION -->
+        <section id="interview" class="py-24 relative overflow-hidden">
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] bg-indigo-600/15 rounded-full blur-[140px] pointer-events-none"></div>
             
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl md:text-5xl font-extrabold mb-3">AI Voice <span class="text-gradient">Interview Room</span></h2>
-                    <p class="text-slate-400 max-w-2xl mx-auto text-sm sm:text-base">Real-time continuous listening with live speaking telemetry.</p>
+                <div class="text-center mb-8 gsap-section">
+                    <div class="inline-block px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/50 text-indigo-300 text-xs font-bold tracking-wide uppercase mb-4">
+                        Core Feature
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-extrabold mb-3">AI Voice <span class="text-gradient">Interview Room</span></h2>
+                    <p class="text-slate-400 max-w-2xl mx-auto text-lg">Real-time continuous listening with live speaking telemetry. Speak naturally.</p>
                 </div>
 
                 <!-- Live Telemetry Bar -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 gsap-card">
                     <div class="glass-panel p-4 rounded-2xl flex items-center justify-between border-slate-800">
                         <div>
                             <span class="text-xs text-slate-400 uppercase tracking-wider block">Live Pace</span>
@@ -253,7 +396,7 @@
                     </div>
                 </div>
 
-                <div class="glass-card rounded-3xl border border-indigo-500/20 shadow-2xl overflow-hidden flex flex-col md:flex-row relative">
+                <div class="glass-card rounded-3xl border border-indigo-500/20 shadow-2xl overflow-hidden flex flex-col md:flex-row relative gsap-card">
                     
                     <!-- Left: Avatar, Controls & Live Audio Reactivity -->
                     <div class="w-full md:w-5/12 bg-slate-900/70 p-8 flex flex-col items-center justify-between border-r border-white/5">
@@ -420,102 +563,14 @@
             </div>
         </section>
 
-        <!-- Tools Section -->
-        <section id="tools" class="py-20 relative">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <h2 class="text-4xl font-bold mb-4">Complementary <span class="text-gradient">Career Tools</span></h2>
-                    <p class="text-slate-400 max-w-2xl mx-auto text-sm">Sharpen your CV and match your skills to high-paying engineering roles.</p>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Resume Analyzer -->
-                    <div class="glass-card p-8 rounded-3xl flex flex-col">
-                        <h3 class="text-2xl font-bold mb-2"><i class="fa-solid fa-file-pdf text-indigo-400 mr-2"></i> ATS Resume Scanner</h3>
-                        <p class="text-slate-400 mb-6 text-sm">Upload your resume to check parser pass rates and keyword coverage.</p>
-                        
-                        <div id="drop-zone" class="border-2 border-dashed border-slate-600 rounded-xl p-10 text-center transition-all duration-300 hover:border-cyan-400 bg-slate-900/50 flex-grow flex flex-col justify-center items-center cursor-pointer" onclick="document.getElementById('file-upload').click()">
-                            <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 mb-4 drop-icon"></i>
-                            <p class="text-slate-300 font-medium">Drag & drop your resume here</p>
-                            <p class="text-slate-500 text-xs mt-1">Supports PDF & DOCX</p>
-                            <input type="file" id="file-upload" class="hidden" accept=".pdf,.doc,.docx" onchange="handleFileUpload(this)">
-                        </div>
-
-                        <div id="resume-results" class="hidden mt-6 flex-grow flex flex-col justify-center">
-                            <div class="flex justify-between text-xs mb-2">
-                                <span class="text-slate-300" id="upload-status">Scanning content...</span>
-                                <span class="text-cyan-400 font-bold" id="upload-percent">0%</span>
-                            </div>
-                            <div class="w-full bg-slate-800 rounded-full h-2 mb-4 overflow-hidden">
-                                <div id="upload-bar" class="bg-gradient-to-r from-indigo-500 to-cyan-400 h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
-                            </div>
-                            
-                            <div id="score-card" class="hidden glass-panel p-4 rounded-xl border-emerald-500/30 bg-emerald-500/10 mt-2">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-14 h-14 rounded-full border-4 border-emerald-400 flex items-center justify-center font-bold text-xl text-white">
-                                        94
-                                    </div>
-                                    <div>
-                                        <h4 class="text-emerald-400 font-bold text-sm">ATS Optimized</h4>
-                                        <p class="text-xs text-slate-300 mt-0.5">High semantic match across senior technical roles.</p>
-                                    </div>
-                                </div>
-                                <button class="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs transition-colors" onclick="resetResume()">Scan Another Document</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Job Matcher & Gap Analyzer -->
-                    <div class="space-y-6">
-                        <div class="glass-card p-6 rounded-3xl">
-                            <h3 class="text-xl font-bold mb-2"><i class="fa-solid fa-bullseye text-cyan-400 mr-2"></i> Role Alignment Engine</h3>
-                            <div class="space-y-3">
-                                <input type="text" id="job-role" placeholder="Target Role (e.g. Distributed Systems Engineer)" class="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400">
-                                <button onclick="findJobs(event)" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold transition-all flex justify-center items-center gap-2">
-                                    <i class="fa-solid fa-magnifying-glass"></i> Analyze Role Match
-                                </button>
-                                <div id="job-results" class="hidden space-y-2 mt-2">
-                                    <div class="glass-panel p-3 rounded-lg border-l-4 border-l-cyan-400 flex justify-between items-center text-xs">
-                                        <div>
-                                            <h4 class="font-bold text-slate-200">Staff Cloud Architect</h4>
-                                            <p class="text-slate-400">Enterprise Systems Tier</p>
-                                        </div>
-                                        <span class="text-emerald-400 font-bold">96% Fit</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="glass-card p-6 rounded-3xl">
-                            <h3 class="text-xl font-bold mb-2"><i class="fa-solid fa-chart-line text-purple-400 mr-2"></i> Skill Gap Detector</h3>
-                            <div class="flex gap-2 mb-3">
-                                <input type="text" value="Senior Backend" class="w-2/3 bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none">
-                                <button onclick="analyzeSkills(event)" class="w-1/3 py-2 bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600/40 rounded-lg text-xs font-semibold">
-                                    Detect
-                                </button>
-                            </div>
-                            <div id="skill-results" class="hidden">
-                                <p class="text-[11px] text-slate-400 mb-2">High-yield gaps to close before interview:</p>
-                                <div class="flex flex-wrap gap-2 text-xs">
-                                    <span class="px-2 py-1 bg-slate-800 rounded-md text-rose-300 border border-rose-500/30">eBPF Profiling</span>
-                                    <span class="px-2 py-1 bg-slate-800 rounded-md text-amber-300 border border-amber-500/30">Raft Consensus</span>
-                                    <span class="px-2 py-1 bg-slate-800 rounded-md text-cyan-300 border border-cyan-500/30">gRPC Streaming</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- How It Works Section -->
         <section id="how-it-works" class="py-20 bg-slate-900/30">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
+                <div class="text-center mb-16 gsap-section">
                     <h2 class="text-3xl font-bold mb-4">How The Real-Time System Works</h2>
                 </div>
                 
-                <div class="flex flex-col md:flex-row justify-center items-start gap-8 relative">
+                <div class="flex flex-col md:flex-row justify-center items-start gap-8 relative gsap-section">
                     <div class="hidden md:block absolute top-12 left-[10%] w-[80%] h-0.5 bg-slate-800 -z-10"></div>
                     
                     <div class="flex-1 text-center group">
@@ -546,9 +601,52 @@
         </section>
     </main>
 
-    <footer class="bg-slate-950 border-t border-white/10 py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500">
-            <p>© 2026 AI Career Copilot. Real-time client-side intelligence active.</p>
+    <!-- FULL FOOTER WITH COPYRIGHT RESTORED -->
+    <footer class="bg-slate-950 border-t border-white/10 pt-16 pb-8 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-brain text-cyan-400 text-xl"></i>
+                        <span class="font-bold text-xl tracking-tight text-white">AI Career Copilot</span>
+                    </div>
+                    <p class="text-slate-400 text-sm max-w-sm mb-6">
+                        Empowering job seekers with cutting-edge artificial intelligence to land their dream roles faster.
+                    </p>
+                    <!-- LinkedIn Icon -->
+                    <div class="flex space-x-4">
+                        <a href="https://www.linkedin.com/in/harshit-bisht-69127b216" target="_blank" class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:text-white hover:bg-indigo-600 transition-colors shadow-lg shadow-black/50">
+                            <i class="fa-brands fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Platform</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="#tools" onclick="showToast('Navigating to Resume Analyzer')" class="hover:text-cyan-400 transition-colors">Resume Analyzer</a></li>
+                        <li><a href="#interview" onclick="showToast('Navigating to Voice Interviews')" class="hover:text-cyan-400 transition-colors">Voice Interviews</a></li>
+                        <li><a href="#tools" onclick="showToast('Navigating to Job Matcher')" class="hover:text-cyan-400 transition-colors">Job Matcher</a></li>
+                        <li><a href="#" onclick="showToast('Pricing coming soon!')" class="hover:text-cyan-400 transition-colors">Pricing</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Legal & Contact</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="#" onclick="showToast('Privacy Policy opening...')" class="hover:text-cyan-400 transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" onclick="showToast('Terms of Service opening...')" class="hover:text-cyan-400 transition-colors">Terms of Service</a></li>
+                        <li><a href="mailto:harshbisht911@gmail.com" class="hover:text-cyan-400 transition-colors">Support: harshbisht911@gmail.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-slate-500 text-sm font-medium">
+                    © 2026 Harshit Bisht. All Rights Reserved.
+                </p>
+                <p class="text-slate-600 text-xs tracking-wider uppercase font-medium">
+                    Developed by Harshit Bisht
+                </p>
+            </div>
         </div>
     </footer>
 
@@ -557,7 +655,7 @@
         // ==========================================
         // 1. GLOBAL AUDIO & SYNTHESIS ANCHOR (Prevents Chrome GC freeze)
         // ==========================================
-        window.activeUtterance = null; // Keeps utterance in memory so Chrome doesn't kill it mid-sentence
+        window.activeUtterance = null; 
 
         function showToast(message) {
             const container = document.getElementById('toast-container');
@@ -573,7 +671,7 @@
         }
 
         // ==========================================
-        // BACKGROUND ANIMATION (Three.js)
+        // BACKGROUND ANIMATION (Three.js & GSAP)
         // ==========================================
         const canvas = document.getElementById('bg-canvas');
         const scene = new THREE.Scene();
@@ -618,12 +716,67 @@
             scene.rotation.y += 0.0004;
             renderer.render(scene, camera);
         }
-        animateBg();
 
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Initialize GSAP Animations
+        window.onload = function() {
+            animateBg();
+            
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.getVoices();
+                window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+            }
+
+            if (typeof gsap !== 'undefined') {
+                gsap.registerPlugin(ScrollTrigger);
+                gsap.from(".gsap-hero", {
+                    y: 50, opacity: 0, duration: 1, stagger: 0.2, ease: "power3.out", delay: 0.2
+                });
+                gsap.utils.toArray('.gsap-section').forEach(section => {
+                    gsap.from(section, {
+                        scrollTrigger: { trigger: section, start: "top 80%" },
+                        y: 30, opacity: 0, duration: 0.8, ease: "power2.out"
+                    });
+                });
+                gsap.utils.toArray('.gsap-card').forEach(card => {
+                    gsap.from(card, {
+                        scrollTrigger: { trigger: card, start: "top 85%" },
+                        scale: 0.95, y: 40, opacity: 0, duration: 0.6, ease: "back.out(1.2)"
+                    });
+                });
+            }
+        };
+
+        // 3D Tilt Effect for Glass Cards
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -5;
+                const rotateY = ((x - centerX) / centerX) * 5;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+            });
+        });
+
+        // Sticky Navbar effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if(window.scrollY > 50) {
+                nav.classList.add('bg-slate-950/80', 'border-b', 'border-white/10');
+            } else {
+                nav.classList.remove('bg-slate-950/80', 'border-b', 'border-white/10');
+            }
         });
 
         // ==========================================
@@ -635,11 +788,11 @@
                 return;
             }
 
-            window.speechSynthesis.cancel(); // Clear any hung utterances
-            window.speechSynthesis.resume(); // Unpause Chromium audio pipeline
+            window.speechSynthesis.cancel(); 
+            window.speechSynthesis.resume(); 
 
             const utterance = new SpeechSynthesisUtterance(text);
-            window.activeUtterance = utterance; // Anchor to window to prevent garbage collection
+            window.activeUtterance = utterance; 
 
             const voices = window.speechSynthesis.getVoices();
             const targetVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Natural') || v.name.includes('Samantha') || v.name.includes('Google UK')));
@@ -708,9 +861,6 @@
         let animationFrameId = null;
         let speechStartTime = null;
         let finalTranscript = "";
-
-        // API Key loaded here. User's requested API Key is set as the fallback default.
-        let savedApiKey = localStorage.getItem('gemini_api_key') || "AQ.Ab8RN6LDBBQ8DLmvkxNW1dlBZvAu6G1lhJeRz1kscwX8zC1lLw";
 
         const transcriptBox = document.getElementById('transcript-box');
         const statusText = document.getElementById('interview-status');
@@ -932,29 +1082,31 @@
         }
 
         // ==========================================
-        // 4. BULLETPROOF EVALUATOR ENGINE
+        // 4. BULLETPROOF EVALUATOR ENGINE WITH HARDCODED API KEY
         // ==========================================
         async function evaluateAnswerAPI(questionObj, answer) {
-            // Utilizes the API Key setup in the variables above
-            if (savedApiKey) {
-                try {
-                    const prompt = `Evaluate this interview answer for: "${questionObj.q}". Answer: "${answer}". Return ONLY JSON with keys: status, score, pros, cons, explanation, improved.`;
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${savedApiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                    });
-                    const data = await res.json();
-                    if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-                        const match = data.candidates[0].content.parts[0].text.match(/\{[\s\S]*\}/);
-                        if (match) return JSON.parse(match[0]);
-                    }
-                } catch (e) {
-                    console.warn("External Gemini API call skipped or failed; switching to instant local engine.", e);
+            
+            // Hardcoded Gemini Key as requested
+            let activeKey = localStorage.getItem('gemini_api_key') || "AQ.Ab8RN6LDBBQ8DLmvkxNW1dlBZvAu6G1lhJeRz1kscwX8zC1lLw";
+
+            try {
+                const prompt = `Evaluate this interview answer for: "${questionObj.q}". Answer: "${answer}". Return ONLY JSON with keys: status, score, pros, cons, explanation, improved.`;
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${activeKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                
+                const data = await res.json();
+                if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+                    const match = data.candidates[0].content.parts[0].text.match(/\{[\s\S]*\}/);
+                    if (match) return JSON.parse(match[0]);
                 }
+            } catch (e) {
+                console.warn("External Gemini API call failed; switching to instant local engine.", e);
             }
 
-            // Local evaluation fallback
+            // Local evaluation fallback if network drops
             return new Promise((resolve) => {
                 setTimeout(() => {
                     const lower = answer.toLowerCase();
@@ -1044,16 +1196,35 @@
             const modal = document.getElementById('settings-modal');
             modal.classList.toggle('hidden');
             if (!modal.classList.contains('hidden')) {
-                document.getElementById('gemini-api-key').value = savedApiKey;
+                document.getElementById('gemini-api-key').value = localStorage.getItem('gemini_api_key') || "AQ.Ab8RN6LDBBQ8DLmvkxNW1dlBZvAu6G1lhJeRz1kscwX8zC1lLw";
             }
         }
 
         function saveApiKey() {
             const key = document.getElementById('gemini-api-key').value.trim();
-            savedApiKey = key;
             localStorage.setItem('gemini_api_key', key);
             toggleApiSettings();
             showToast(key ? "API Key Saved. Cloud evaluation enabled!" : "Using Built-in Local Engine.");
+        }
+
+        // Resume & Tools Handlers
+        const dropZone = document.getElementById('drop-zone');
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            if(dropZone) dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+        function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+        
+        if(dropZone) {
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.add('border-cyan-400', 'bg-slate-800'), false);
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.remove('border-cyan-400', 'bg-slate-800'), false);
+            });
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                if(dt.files.length > 0) handleFileUpload({files: dt.files});
+            });
         }
 
         function handleFileUpload(input) {
@@ -1098,7 +1269,7 @@
             const btn = e.currentTarget;
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
             setTimeout(() => {
-                btn.innerText = "Detect";
+                btn.innerText = "Detect Gaps";
                 document.getElementById('skill-results').classList.remove('hidden');
             }, 400);
         }
@@ -1106,13 +1277,6 @@
         transcriptBox.addEventListener('input', (e) => {
             runLiveTelemetry(e.target.value);
         });
-
-        window.onload = function() {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.getVoices();
-                window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-            }
-        };
     </script>
 </body>
 </html>
