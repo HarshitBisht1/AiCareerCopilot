@@ -172,9 +172,9 @@
                 <h3 class="font-bold text-lg text-white"><i class="fa-solid fa-gear text-indigo-400 mr-2"></i> Engine Configuration</h3>
                 <button onclick="toggleApiSettings()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <p class="text-xs text-slate-400 mb-4">Default mode runs our sub-50ms local real-time semantic engine directly in your browser. You can also plug in a Gemini API key for external cloud evaluations.</p>
-            <label class="block text-xs font-medium text-slate-300 mb-2">Gemini API Key (Optional)</label>
-            <input type="password" id="gemini-api-key" placeholder="AIzaSy..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400 mb-4">
+            <p class="text-xs text-slate-400 mb-4">Your updated API key is currently active. You can change it below or leave it blank to fall back to the local semantic engine.</p>
+            <label class="block text-xs font-medium text-slate-300 mb-2">Active API Key</label>
+            <input type="password" id="gemini-api-key" placeholder="Enter API Key..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400 mb-4">
             <div class="flex justify-end gap-2">
                 <button onclick="toggleApiSettings()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg text-slate-300">Close</button>
                 <button onclick="saveApiKey()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold rounded-lg text-white">Save</button>
@@ -555,8 +555,10 @@
     <!-- SCRIPT LOGIC -->
     <script>
         // ==========================================
-        // 1. GLOBAL & THREE.JS BACKGROUND
+        // 1. GLOBAL AUDIO & SYNTHESIS ANCHOR (Prevents Chrome GC freeze)
         // ==========================================
+        window.activeUtterance = null; // Keeps utterance in memory so Chrome doesn't kill it mid-sentence
+
         function showToast(message) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -570,6 +572,9 @@
             }, 3200);
         }
 
+        // ==========================================
+        // BACKGROUND ANIMATION (Three.js)
+        // ==========================================
         const canvas = document.getElementById('bg-canvas');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -622,27 +627,74 @@
         });
 
         // ==========================================
-        // 2. REAL-TIME VOICE INTERVIEW ENGINE
+        // 2. SPEECH SYNTHESIS ENGINE (AI Speaking)
+        // ==========================================
+        function speakText(text, callback) {
+            if (!('speechSynthesis' in window)) {
+                if (callback) callback();
+                return;
+            }
+
+            window.speechSynthesis.cancel(); // Clear any hung utterances
+            window.speechSynthesis.resume(); // Unpause Chromium audio pipeline
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            window.activeUtterance = utterance; // Anchor to window to prevent garbage collection
+
+            const voices = window.speechSynthesis.getVoices();
+            const targetVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Natural') || v.name.includes('Samantha') || v.name.includes('Google UK')));
+            if (targetVoice) utterance.voice = targetVoice;
+            utterance.rate = 1.0;
+
+            utterance.onstart = () => {
+                const status = document.getElementById('interview-status');
+                if (status) {
+                    status.innerText = "Interviewer is speaking...";
+                    status.className = "text-center mt-4 text-sm font-medium text-indigo-400";
+                }
+            };
+
+            utterance.onend = () => {
+                window.activeUtterance = null;
+                const status = document.getElementById('interview-status');
+                if (status) {
+                    status.innerText = "Ready. Start speaking whenever you wish.";
+                    status.className = "text-center mt-4 text-sm font-medium text-slate-300";
+                }
+                if (callback) callback();
+            };
+
+            utterance.onerror = (e) => {
+                console.warn("Speech synthesis notice:", e);
+                window.activeUtterance = null;
+                if (callback) callback();
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // ==========================================
+        // 3. INTERVIEW RECOGNITION & TELEMETRY
         // ==========================================
         const interviewQuestions = [
             {
                 q: "Tell me about a time you had to learn a new technology quickly to solve a critical problem.",
-                keywords: ["learned", "documentation", "prototype", "architecture", "implemented", "resolved", "deadline", "production", "stack"],
+                keywords: ["learned", "documentation", "prototype", "architecture", "implemented", "resolved", "deadline"],
                 topic: "Adaptability & Tech Agility"
             },
             {
                 q: "Can you describe a situation where you disagreed with a team member on a technical approach? How did you resolve it?",
-                keywords: ["tradeoff", "consensus", "benchmarked", "data", "alignment", "perspective", "compromise", "review", "objective"],
+                keywords: ["tradeoff", "consensus", "benchmarked", "data", "alignment", "perspective", "compromise"],
                 topic: "Technical Conflict & Collaboration"
             },
             {
                 q: "What is your step-by-step debugging process when you encounter a complex production bug that you have never seen before?",
-                keywords: ["reproduce", "logs", "metrics", "isolated", "root cause", "hypothesis", "telemetry", "patch", "unit test", "regression"],
+                keywords: ["reproduce", "logs", "metrics", "isolated", "root cause", "hypothesis", "telemetry"],
                 topic: "Systematic Troubleshooting"
             },
             {
                 q: "Where do you see your technical engineering skills progressing over the next three years?",
-                keywords: ["system design", "mentorship", "scalability", "specialization", "architecture", "leadership", "impact", "domain"],
+                keywords: ["system design", "mentorship", "scalability", "architecture", "leadership", "impact"],
                 topic: "Career Vision & Growth"
             }
         ];
@@ -654,10 +706,11 @@
         let analyser = null;
         let microphoneStream = null;
         let animationFrameId = null;
-        
         let speechStartTime = null;
         let finalTranscript = "";
-        let savedApiKey = localStorage.getItem('gemini_api_key') || "";
+
+        // API Key loaded here. User's requested API Key is set as the fallback default.
+        let savedApiKey = localStorage.getItem('gemini_api_key') || "AQ.Ab8RN6LDBBQ8DLmvkxNW1dlBZvAu6G1lhJeRz1kscwX8zC1lLw";
 
         const transcriptBox = document.getElementById('transcript-box');
         const statusText = document.getElementById('interview-status');
@@ -668,7 +721,6 @@
         const questionText = document.getElementById('current-question');
         const qTracker = document.getElementById('question-tracker');
 
-        // Live Telemetry Elements
         const liveWpmEl = document.getElementById('live-wpm');
         const liveWpmBadge = document.getElementById('live-wpm-badge');
         const liveFillersEl = document.getElementById('live-fillers');
@@ -677,13 +729,12 @@
         const liveStarStatus = document.getElementById('live-star-status');
         const starDots = document.getElementById('star-dots').children;
 
-        const FILLER_WORDS = ['um', 'uh', 'like', 'literally', 'basically', 'actually', 'you know', 'sort of', 'kind of'];
+        const FILLER_WORDS = ['um', 'uh', 'like', 'literally', 'basically', 'actually', 'you know'];
 
-        // Speech Recognition Setup with Auto-Restart
         function setupSpeechRecognition() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
-                showToast("Speech Recognition API not supported on this browser. Type in the box directly.");
+                showToast("Speech Recognition not supported in this browser. Please type directly.");
                 return null;
             }
 
@@ -692,12 +743,12 @@
             rec.interimResults = true;
             rec.lang = 'en-US';
 
-            rec.onstart = function() {
+            rec.onstart = () => {
                 isRecording = true;
                 updateUIRecordingState(true);
             };
 
-            rec.onresult = function(event) {
+            rec.onresult = (event) => {
                 let interimTranscript = '';
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     if (event.results[i].isFinal) {
@@ -711,22 +762,17 @@
                 runLiveTelemetry(fullText);
             };
 
-            rec.onerror = function(event) {
-                console.warn("Speech Rec Error:", event.error);
+            rec.onerror = (event) => {
+                console.warn("Speech Recognition Error:", event.error);
                 if (event.error === 'not-allowed') {
-                    showToast("Microphone access denied. Please allow mic permissions in your browser.");
+                    showToast("Microphone permission denied. Enable microphone in browser site settings.");
                     stopInterview();
                 }
             };
 
-            // THE REAL-TIME FIX: Do NOT stop recording when recognition closes due to brief silence.
-            rec.onend = function() {
+            rec.onend = () => {
                 if (isRecording) {
-                    try {
-                        rec.start(); // Auto-restart listening seamlessly
-                    } catch (err) {
-                        console.log("Auto-restart throttled", err);
-                    }
+                    try { rec.start(); } catch (err) {}
                 }
             };
 
@@ -735,30 +781,25 @@
 
         recognition = setupSpeechRecognition();
 
-        // Real-Time Audio Spectrum Reactivity (Web Audio API)
         async function startRealTimeAudioVisualizer() {
             try {
-                microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioContext.createAnalyser();
                 analyser.fftSize = 32;
 
                 const source = audioContext.createMediaStreamSource(microphoneStream);
                 source.connect(analyser);
-
                 const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
                 function renderWave() {
                     if (!isRecording) return;
                     analyser.getByteFrequencyData(dataArray);
-
                     for (let i = 0; i < 7; i++) {
                         const bar = document.getElementById(`bar-${i}`);
                         if (bar) {
                             const val = dataArray[i + 2] || 0;
-                            // Scale height from 8px to 42px based on real acoustic volume
-                            const height = Math.max(8, (val / 255) * 44);
-                            bar.style.height = `${height}px`;
+                            bar.style.height = `${Math.max(8, (val / 255) * 44)}px`;
                             bar.style.backgroundColor = val > 140 ? '#818cf8' : '#2dd4bf';
                         }
                     }
@@ -766,7 +807,7 @@
                 }
                 renderWave();
             } catch (err) {
-                console.warn("Real-time Audio Visualizer unavailable:", err);
+                console.warn("Visualizer unavailable:", err);
             }
         }
 
@@ -779,76 +820,48 @@
             if (audioContext && audioContext.state !== 'closed') {
                 audioContext.close();
             }
-            // Reset bar heights
             for (let i = 0; i < 7; i++) {
                 const bar = document.getElementById(`bar-${i}`);
                 if (bar) bar.style.height = '8px';
             }
         }
 
-        // Live Speaking Telemetry
         function runLiveTelemetry(text) {
             if (!text) return;
             const words = text.toLowerCase().match(/\b[a-z']+\b/g) || [];
-            const wordCount = words.length;
-            liveWordsEl.innerText = wordCount;
+            liveWordsEl.innerText = words.length;
 
-            // 1. Calculate WPM (Words Per Minute)
-            if (speechStartTime && wordCount > 2) {
-                const minutesElapsed = (Date.now() - speechStartTime) / 60000;
-                if (minutesElapsed > 0.05) {
-                    const wpm = Math.round(wordCount / minutesElapsed);
+            if (speechStartTime && words.length > 2) {
+                const minutes = (Date.now() - speechStartTime) / 60000;
+                if (minutes > 0.05) {
+                    const wpm = Math.round(words.length / minutes);
                     liveWpmEl.innerText = `${wpm} WPM`;
-
-                    if (wpm < 110) {
-                        liveWpmBadge.innerText = "Slow";
-                        liveWpmBadge.className = "text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300";
-                    } else if (wpm <= 165) {
-                        liveWpmBadge.innerText = "Optimal Pace";
-                        liveWpmBadge.className = "text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400";
-                    } else {
-                        liveWpmBadge.innerText = "Fast";
-                        liveWpmBadge.className = "text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300";
-                    }
+                    liveWpmBadge.innerText = (wpm >= 110 && wpm <= 165) ? "Optimal Pace" : (wpm < 110 ? "Slow" : "Fast");
+                    liveWpmBadge.className = (wpm >= 110 && wpm <= 165) 
+                        ? "text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400" 
+                        : "text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300";
                 }
             }
 
-            // 2. Count Fillers
             let fillerCount = 0;
             FILLER_WORDS.forEach(filler => {
-                const regex = new RegExp(`\\b${filler}\\b`, 'gi');
-                const matches = text.match(regex);
+                const matches = text.match(new RegExp(`\\b${filler}\\b`, 'gi'));
                 if (matches) fillerCount += matches.length;
             });
             liveFillersEl.innerText = fillerCount;
 
-            if (fillerCount === 0) {
-                liveFillersBadge.innerText = "Clean";
-                liveFillersBadge.className = "text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400";
-            } else if (fillerCount < 4) {
-                liveFillersBadge.innerText = "Minor";
-                liveFillersBadge.className = "text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300";
-            } else {
-                liveFillersBadge.innerText = "Excessive";
-                liveFillersBadge.className = "text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300";
-            }
+            const hasS = /(problem|challenge|situation|bug|issue|task)/i.test(text);
+            const hasA = /(implemented|decided|built|investigated|designed|wrote)/i.test(text);
+            const hasR = /(result|outcome|improved|reduced|optimized|delivered|fixed)/i.test(text);
 
-            // 3. Detect STAR Structure in Real-Time
-            const hasSituation = /(problem|challenge|situation|bug|issue|task|needed to|assigned|goal)/i.test(text);
-            const hasAction = /(i implemented|i decided|i built|i investigated|i designed|i researched|i wrote|my approach)/i.test(text);
-            const hasResult = /(result|outcome|improved|reduced|optimized|delivered|resolved|fixed|learned|percent|success)/i.test(text);
-
-            let stagesMet = 0;
-            starDots[0].className = hasSituation ? "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "w-2.5 h-2.5 rounded-full bg-slate-700";
-            if (hasSituation) stagesMet++;
-
-            starDots[1].className = hasAction ? "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "w-2.5 h-2.5 rounded-full bg-slate-700";
-            if (hasAction) stagesMet++;
-
-            starDots[2].className = hasResult ? "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "w-2.5 h-2.5 rounded-full bg-slate-700";
-            if (hasResult) stagesMet++;
-
-            liveStarStatus.innerText = `${stagesMet}/3 Stages`;
+            let stages = 0;
+            starDots[0].className = hasS ? "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "w-2.5 h-2.5 rounded-full bg-slate-700";
+            if (hasS) stages++;
+            starDots[1].className = hasA ? "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "w-2.5 h-2.5 rounded-full bg-slate-700";
+            if (hasA) stages++;
+            starDots[2].className = hasR ? "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "w-2.5 h-2.5 rounded-full bg-slate-700";
+            if (hasR) stages++;
+            liveStarStatus.innerText = `${stages}/3 Stages`;
         }
 
         function updateUIRecordingState(recording) {
@@ -871,17 +884,11 @@
             }
         }
 
-        // Direct user-action triggered start to avoid permission block
         async function startInterview() {
             speechStartTime = Date.now();
             isRecording = true;
-
             if (recognition) {
-                try {
-                    recognition.start();
-                } catch (e) {
-                    console.log("Recognition active already", e);
-                }
+                try { recognition.start(); } catch (e) {}
             }
             await startRealTimeAudioVisualizer();
             updateUIRecordingState(true);
@@ -890,7 +897,7 @@
         function stopInterview() {
             isRecording = false;
             if (recognition) {
-                try { recognition.stop(); } catch(e) {}
+                try { recognition.stop(); } catch (e) {}
             }
             stopRealTimeAudioVisualizer();
             updateUIRecordingState(false);
@@ -904,150 +911,81 @@
             }
         }
 
-        function speakQuestion(text, callback) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                const voices = window.speechSynthesis.getVoices();
-                const targetVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Natural') || v.name.includes('Samantha') || v.name.includes('Google UK')));
-                if (targetVoice) utterance.voice = targetVoice;
-                utterance.rate = 1.0;
-                
-                statusText.innerText = "Interviewer is asking the question...";
-                statusText.className = "text-center mt-4 text-sm font-medium text-indigo-400";
-
-                utterance.onend = () => {
-                    statusText.innerText = "Ready. Start speaking whenever you wish.";
-                    statusText.className = "text-center mt-4 text-sm font-medium text-slate-300";
-                    if (callback) callback();
-                };
-                window.speechSynthesis.speak(utterance);
-            } else {
-                if (callback) callback();
-            }
-        }
-
         function repeatQuestion() {
-            const item = interviewQuestions[currentQIndex];
-            speakQuestion(item.q);
+            speakText(interviewQuestions[currentQIndex].q);
         }
 
         function nextQuestion() {
             stopInterview();
             currentQIndex = (currentQIndex + 1) % interviewQuestions.length;
             const item = interviewQuestions[currentQIndex];
-            
             questionText.innerText = item.q;
             qTracker.innerText = `Question ${currentQIndex + 1} of ${interviewQuestions.length}`;
             transcriptBox.value = "";
             finalTranscript = "";
-            
-            // Reset Telemetry
-            liveWpmEl.innerText = "0 WPM";
-            liveWpmBadge.innerText = "Idle";
-            liveFillersEl.innerText = "0";
-            liveFillersBadge.innerText = "Clean";
             liveWordsEl.innerText = "0";
+            liveWpmEl.innerText = "0 WPM";
+            liveFillersEl.innerText = "0";
             liveStarStatus.innerText = "0/3 Stages";
-            for(let dot of starDots) dot.className = "w-2.5 h-2.5 rounded-full bg-slate-700";
-
-            speakQuestion(item.q);
+            for (let dot of starDots) dot.className = "w-2.5 h-2.5 rounded-full bg-slate-700";
+            speakText(item.q);
         }
 
         // ==========================================
-        // 3. REAL-TIME CLIENT-SIDE AI EVALUATOR
+        // 4. BULLETPROOF EVALUATOR ENGINE
         // ==========================================
         async function evaluateAnswerAPI(questionObj, answer) {
-            // If user supplied a Gemini API key in settings, execute direct live LLM evaluation
+            // Utilizes the API Key setup in the variables above
             if (savedApiKey) {
                 try {
-                    const prompt = `You are a Principal Engineering Interviewer. Evaluate this answer for the question: "${questionObj.q}".
-Candidate Answer: "${answer}"
-Return STRICT JSON format matching:
-{
-  "status": "string (e.g. Strong Answer, Needs Structure)",
-  "score": number (0-100),
-  "pros": "string with exact positive technical choices observed",
-  "cons": "string with specific missing architectural or contextual details",
-  "explanation": "string explaining how this reflects on engineering seniority",
-  "improved": "string rewritten with crisp STAR structure"
-}`;
+                    const prompt = `Evaluate this interview answer for: "${questionObj.q}". Answer: "${answer}". Return ONLY JSON with keys: status, score, pros, cons, explanation, improved.`;
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${savedApiKey}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                     });
                     const data = await res.json();
-                    const rawText = data.candidates[0].content.parts[0].text;
-                    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-                    if (jsonMatch) return JSON.parse(jsonMatch[0]);
-                } catch(e) {
-                    console.warn("Direct Gemini call failed, falling back to local engine", e);
+                    if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+                        const match = data.candidates[0].content.parts[0].text.match(/\{[\s\S]*\}/);
+                        if (match) return JSON.parse(match[0]);
+                    }
+                } catch (e) {
+                    console.warn("External Gemini API call skipped or failed; switching to instant local engine.", e);
                 }
             }
 
-            // Zero-latency Local Semantic Evaluator
+            // Local evaluation fallback
             return new Promise((resolve) => {
                 setTimeout(() => {
                     const lower = answer.toLowerCase();
                     const words = lower.match(/\b[a-z']+\b/g) || [];
-                    const wordCount = words.length;
+                    const matchedKw = questionObj.keywords.filter(k => lower.includes(k));
+                    const hasS = /(problem|challenge|situation|bug|issue|task)/i.test(lower);
+                    const hasA = /(implemented|decided|built|investigated|designed|wrote)/i.test(lower);
+                    const hasR = /(result|outcome|improved|reduced|optimized|delivered)/i.test(lower);
+                    const stages = [hasS, hasA, hasR].filter(Boolean).length;
 
-                    // Keyword coverage against question syllabus
-                    let matchedKeywords = [];
-                    questionObj.keywords.forEach(kw => {
-                        if (lower.includes(kw)) matchedKeywords.push(kw);
+                    let score = 45 + (matchedKw.length * 6) + (stages * 12);
+                    if (words.length > 50 && words.length < 250) score += 10;
+                    score = Math.max(30, Math.min(96, score));
+
+                    resolve({
+                        status: score >= 75 ? "✓ Strong Technical Answer" : "⚠ Needs Concrete Detail & Metrics",
+                        score: score,
+                        pros: `Direct communication style. Included key domain terminology: ${matchedKw.slice(0, 3).join(', ') || 'clear scenario presentation'}.`,
+                        cons: stages < 3 ? "Missed one or more STAR phases. Make sure to articulate the exact Result or measurable impact." : "Include more concrete performance figures (e.g. latency, throughput, timelines).",
+                        explanation: `For ${questionObj.topic}, interviewers assess systematic thinking and ownership. You captured ${matchedKw.length} domain keywords.`,
+                        improved: `In my previous role, when faced with this issue, I evaluated the core constraints, implemented a structured fix, and reduced error rates while keeping the team aligned.`
                     });
-
-                    // STAR Criteria
-                    const hasS = /(problem|challenge|situation|bug|issue|task|assigned)/i.test(lower);
-                    const hasA = /(implemented|decided|built|investigated|designed|refactored|wrote)/i.test(lower);
-                    const hasR = /(result|outcome|improved|reduced|optimized|delivered|resolved|fixed)/i.test(lower);
-                    const starCount = [hasS, hasA, hasR].filter(Boolean).length;
-
-                    // Filler word penalty
-                    let fillerHits = 0;
-                    FILLER_WORDS.forEach(f => {
-                        const m = lower.match(new RegExp(`\\b${f}\\b`, 'g'));
-                        if (m) fillerHits += m.length;
-                    });
-
-                    // Dynamic Scoring Algorithm
-                    let score = 40;
-                    score += Math.min(30, matchedKeywords.length * 6);
-                    score += starCount * 12;
-                    if (wordCount >= 60 && wordCount <= 220) score += 10;
-                    if (fillerHits > 4) score -= 8;
-                    score = Math.max(25, Math.min(97, score));
-
-                    let status = "✓ Well Structured Answer";
-                    if (score < 55) status = "✗ Needs Concrete Technical Depth";
-                    else if (score < 75) status = "⚠ Good Start, Expand Metrics";
-
-                    let pros = `Solid coverage of core concepts (${matchedKeywords.slice(0, 3).join(', ') || 'clear premise'}). Answer was direct and communicative.`;
-                    let cons = "";
-                    if (starCount < 2) {
-                        cons = "Lacked full STAR framing (Situation, Action, Result). State the tangible result or impact of your action explicitly.";
-                    } else if (matchedKeywords.length < 2) {
-                        cons = `Missed critical domain vocabulary such as ${questionObj.keywords.slice(0, 3).join(', ')}.`;
-                    } else {
-                        cons = "Minor: Include quantifiable impact (e.g. latency reduced by X ms, or sprint delivery accelerated).";
-                    }
-
-                    let explanation = `In engineering screens for ${questionObj.topic}, interviewers look for structured problem decomposition and ownership. You hit ${matchedKeywords.length} key technical markers.`;
-                    let improved = `"${hasS ? 'When faced with this,' : 'In a recent system challenge,'} I diagnosed the problem using metrics, took ownership by introducing ${matchedKeywords[0] || 'a systematic design approach'}, which successfully delivered stability and unblocked the team."`;
-
-                    resolve({ status, score, pros, cons, explanation, improved });
-                }, 280);
+                }, 200);
             });
         }
 
         async function submitAnswer() {
             stopInterview();
-
             const answer = transcriptBox.value.trim();
             if (!answer) {
-                showToast("Please speak or write an answer before evaluating.");
+                showToast("Please provide or speak an answer first.");
                 return;
             }
 
@@ -1060,14 +998,11 @@ Return STRICT JSON format matching:
             void panel.offsetWidth;
             content.classList.replace('scale-95', 'scale-100');
             content.classList.replace('opacity-0', 'opacity-100');
-
             loading.classList.remove('hidden');
             resultUI.classList.add('hidden');
 
-            const currentQ = interviewQuestions[currentQIndex];
-            const result = await evaluateAnswerAPI(currentQ, answer);
+            const result = await evaluateAnswerAPI(interviewQuestions[currentQIndex], answer);
 
-            // Populate Modal
             loading.classList.add('hidden');
             resultUI.classList.remove('hidden');
 
@@ -1076,40 +1011,34 @@ Return STRICT JSON format matching:
             document.getElementById('eval-fillers-metric').innerText = `${liveFillersEl.innerText} detected`;
             document.getElementById('eval-star-metric').innerText = liveStarStatus.innerText;
 
-            const scoreEl = document.getElementById('eval-score');
-            scoreEl.innerText = "0";
-            let c = 0;
-            const timer = setInterval(() => {
-                c += 2;
-                if (c >= result.score) {
-                    c = result.score;
-                    clearInterval(timer);
-                }
-                scoreEl.innerText = c;
-            }, 15);
-
+            document.getElementById('eval-score').innerText = result.score;
             document.getElementById('eval-pros').innerText = result.pros;
             document.getElementById('eval-cons').innerText = result.cons;
             document.getElementById('eval-explanation').innerText = result.explanation;
             document.getElementById('eval-improved').innerText = result.improved;
+
+            // AI verbally speaks the feedback summary out loud
+            const voiceFeedback = `You scored ${result.score} out of 100. ${result.pros} Here is what you can improve: ${result.cons}`;
+            speakText(voiceFeedback);
         }
 
         function closeEvaluation() {
+            window.speechSynthesis.cancel();
             const content = document.getElementById('eval-content');
             content.classList.replace('scale-100', 'scale-95');
             content.classList.replace('opacity-100', 'opacity-0');
             setTimeout(() => {
                 document.getElementById('evaluation-panel').classList.add('hidden');
-            }, 250);
+            }, 200);
         }
 
         function closeEvaluationAndNext() {
             closeEvaluation();
-            setTimeout(() => nextQuestion(), 300);
+            setTimeout(() => nextQuestion(), 250);
         }
 
         // ==========================================
-        // 4. API SETTINGS MODAL LOGIC
+        // 5. SETTINGS & UTILITIES
         // ==========================================
         function toggleApiSettings() {
             const modal = document.getElementById('settings-modal');
@@ -1124,16 +1053,12 @@ Return STRICT JSON format matching:
             savedApiKey = key;
             localStorage.setItem('gemini_api_key', key);
             toggleApiSettings();
-            showToast(key ? "Gemini Key Saved. Cloud evaluation enabled!" : "Using Real-Time Local Engine.");
+            showToast(key ? "API Key Saved. Cloud evaluation enabled!" : "Using Built-in Local Engine.");
         }
 
-        // ==========================================
-        // 5. RESUME & UTILITY TOOLS
-        // ==========================================
         function handleFileUpload(input) {
-            if(!input.files || input.files.length === 0) return;
-            const dropZone = document.getElementById('drop-zone');
-            dropZone.classList.add('hidden');
+            if (!input.files || input.files.length === 0) return;
+            document.getElementById('drop-zone').classList.add('hidden');
             const resultsArea = document.getElementById('resume-results');
             const bar = document.getElementById('upload-bar');
             const percentText = document.getElementById('upload-percent');
@@ -1144,12 +1069,12 @@ Return STRICT JSON format matching:
             
             let p = 0;
             const interval = setInterval(() => {
-                p += 20;
+                p += 25;
                 bar.style.width = `${p}%`;
                 percentText.innerText = `${p}%`;
-                if(p >= 100) {
+                if (p >= 100) {
                     clearInterval(interval);
-                    setTimeout(() => scoreCard.classList.remove('hidden'), 300);
+                    setTimeout(() => scoreCard.classList.remove('hidden'), 200);
                 }
             }, 100);
         }
@@ -1178,7 +1103,6 @@ Return STRICT JSON format matching:
             }, 400);
         }
 
-        // Manual text sync to telemetry
         transcriptBox.addEventListener('input', (e) => {
             runLiveTelemetry(e.target.value);
         });
